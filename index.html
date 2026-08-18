@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SCIENCE ADVENTURE: THE ELEMENTAL QUEST</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#070b1a;
+  --panel:#0f1734;
+  --panel2:#141d40;
+  --blue:#2563eb;
+  --cyan:#22d3ee;
+  --purple:#8b5cf6;
+  --white:#eef2ff;
+  --gold:#fbbf24;
+  --danger:#ef4444;
+  --success:#22c55e;
+  --line:rgba(148,163,255,0.18);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%;margin:0;}
+body{
+  font-family:'Rajdhani',sans-serif;
+  background:radial-gradient(ellipse at top, #131c46 0%, var(--void) 60%);
+  color:var(--white);
+  overflow:hidden;
+  height:100vh;
+  width:100vw;
+  position:fixed;
+  inset:0;
+}
+h1,h2,h3,.font-display{font-family:'Orbitron',sans-serif;}
+#app{position:relative; width:100%; height:100%; overflow:hidden;}
+.screen{
+  position:absolute; inset:0;
+  display:none;
+  flex-direction:column;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:0;
+  animation:fadeIn .5s ease;
+}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+@keyframes fadeOutScr{from{opacity:1;} to{opacity:0;}}
+.starfield{
+  position:absolute; inset:0; z-index:0; pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, #ffffff88 50%, transparent 100%),
+    radial-gradient(1px 1px at 70% 60%, #ffffff66 50%, transparent 100%),
+    radial-gradient(2px 2px at 40% 80%, #ffffff55 50%, transparent 100%),
+    radial-gradient(1px 1px at 90% 20%, #ffffff77 50%, transparent 100%),
+    radial-gradient(1px 1px at 55% 10%, #ffffff44 50%, transparent 100%),
+    radial-gradient(2px 2px at 10% 65%, #ffffff33 50%, transparent 100%);
+  background-repeat:repeat;
+  background-size:400px 400px;
+  animation:drift 60s linear infinite;
+}
+@keyframes drift{from{background-position:0 0;} to{background-position:-400px 400px;}}
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-thumb{background:var(--blue); border-radius:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+button{font-family:'Rajdhani',sans-serif; cursor:pointer; -webkit-tap-highlight-color:transparent;}
+.btn{
+  background:linear-gradient(135deg, var(--blue), #1e40af);
+  color:var(--white);
+  border:1px solid rgba(148,197,255,0.4);
+  border-radius:10px;
+  padding:14px 22px;
+  font-size:17px;
+  font-weight:700;
+  letter-spacing:0.5px;
+  box-shadow:0 4px 0 #12296b, 0 0 20px rgba(37,99,235,0.35);
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+.btn:active{transform:translateY(3px); box-shadow:0 1px 0 #12296b, 0 0 12px rgba(37,99,235,0.35);}
+.btn.gold{background:linear-gradient(135deg, var(--gold), #b45309); box-shadow:0 4px 0 #7c3d0a, 0 0 20px rgba(251,191,36,.35); color:#1a1204;}
+.btn.gold:active{box-shadow:0 1px 0 #7c3d0a;}
+.btn.purple{background:linear-gradient(135deg, var(--purple), #5b21b6); box-shadow:0 4px 0 #3b1370, 0 0 20px rgba(139,92,246,.35);}
+.btn.purple:active{box-shadow:0 1px 0 #3b1370;}
+.btn.danger{background:linear-gradient(135deg, var(--danger), #991b1b); box-shadow:0 4px 0 #5f1212, 0 0 20px rgba(239,68,68,.35);}
+.btn.danger:active{box-shadow:0 1px 0 #5f1212;}
+.btn.ghost{background:rgba(148,163,255,0.08); box-shadow:none; border:1px solid var(--line);}
+.btn:disabled{opacity:.35; filter:grayscale(.5); cursor:not-allowed;}
+.btn small{display:block; font-weight:500; opacity:.75; font-size:11px; margin-top:2px;}
+
+/* ---------- TITLE ---------- */
+#screen-title{align-items:center; justify-content:center; text-align:center; position:relative;}
+.title-logo{
+  z-index:2; margin-top:6vh;
+  font-size:clamp(28px,7vw,54px);
+  font-weight:900;
+  letter-spacing:2px;
+  background:linear-gradient(90deg, var(--cyan), var(--blue) 40%, var(--purple));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  text-shadow:0 0 40px rgba(34,211,238,0.35);
+  animation:pulseGlow 3s ease-in-out infinite;
+}
+.title-sub{z-index:2; font-size:clamp(12px,2.4vw,16px); letter-spacing:6px; color:var(--cyan); opacity:.8; margin-top:6px;}
+@keyframes pulseGlow{0%,100%{filter:drop-shadow(0 0 8px rgba(34,211,238,.5));} 50%{filter:drop-shadow(0 0 22px rgba(139,92,246,.7));}}
+.title-orb{
+  z-index:2; width:120px; height:120px; border-radius:50%; margin:26px auto 10px;
+  background:radial-gradient(circle at 35% 30%, #a5f3fc, var(--cyan) 40%, var(--blue) 75%, var(--purple));
+  box-shadow:0 0 60px rgba(34,211,238,.5), inset -10px -10px 30px rgba(0,0,0,.3);
+  animation:floaty 4s ease-in-out infinite;
+  position:relative;
+}
+.title-orb::before,.title-orb::after{content:''; position:absolute; border:2px solid rgba(255,255,255,.25); border-radius:50%;}
+.title-orb::before{inset:-14px; animation:spin 8s linear infinite;}
+.title-orb::after{inset:-28px; border-style:dashed; animation:spin 14s linear infinite reverse;}
+@keyframes floaty{0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);}}
+@keyframes spin{from{transform:rotate(0);} to{transform:rotate(360deg);}}
+.title-menu{z-index:2; display:flex; flex-direction:column; gap:12px; margin-top:20px; width:min(320px,80vw); padding-bottom:40px;}
+.title-menu .btn{width:100%;}
+.title-ver{position:absolute; bottom:10px; right:14px; font-size:11px; opacity:.4; z-index:2;}
+
+/* ---------- generic panel/header layout ---------- */
+.top-bar{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:12px 16px; background:rgba(10,14,35,.85); backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line); position:sticky; top:0; z-index:5;
+}
+.top-bar h2{margin:0; font-size:clamp(15px,3vw,20px); letter-spacing:1px; color:var(--cyan);}
+.content{padding:16px; position:relative; z-index:1; flex:1;}
+.hud-stats{display:flex; gap:10px; flex-wrap:wrap; font-size:13px;}
+.hud-chip{background:var(--panel2); border:1px solid var(--line); border-radius:20px; padding:5px 12px; display:flex; align-items:center; gap:6px;}
+
+/* ---------- Dialogue / cutscene ---------- */
+#screen-cutscene{justify-content:flex-end; position:relative;}
+.cut-bg{position:absolute; inset:0; z-index:0;}
+.cut-char{
+  position:absolute; bottom:26%; left:50%; transform:translateX(-50%);
+  width:130px; height:130px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; font-size:60px;
+  animation:charIn .6s ease;
+}
+@keyframes charIn{from{opacity:0; transform:translateX(-50%) translateY(30px) scale(.8);} to{opacity:1; transform:translateX(-50%) translateY(0) scale(1);}}
+.dialogue-box{
+  z-index:3; margin:0 12px 16px; background:linear-gradient(180deg, var(--panel2), var(--panel));
+  border:2px solid var(--cyan); border-radius:14px; padding:16px 18px;
+  box-shadow:0 0 30px rgba(34,211,238,.25); min-height:110px;
+}
+.dialogue-name{color:var(--gold); font-weight:700; font-family:'Orbitron',sans-serif; font-size:13px; margin-bottom:6px; letter-spacing:1px;}
+.dialogue-text{font-size:17px; line-height:1.5; min-height:52px;}
+.dialogue-next{text-align:right; margin-top:8px; font-size:12px; color:var(--cyan); opacity:.8; animation:blinkA 1.2s infinite;}
+@keyframes blinkA{50%{opacity:.2;}}
+
+/* ---------- Character Select ---------- */
+.char-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-top:14px;}
+.char-card{
+  background:var(--panel2); border:2px solid var(--line); border-radius:16px; padding:16px; text-align:center;
+  transition:all .2s ease; cursor:pointer;
+}
+.char-card:hover, .char-card.selected{border-color:var(--cyan); transform:translateY(-4px); box-shadow:0 8px 24px rgba(34,211,238,.25);}
+.creature-icon{
+  width:84px; height:84px; border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center;
+  font-size:40px; position:relative;
+}
+.creature-icon.lg{width:120px; height:120px; font-size:56px;}
+.creature-icon.xl{width:160px; height:160px; font-size:80px;}
+.type-badge{display:inline-block; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; letter-spacing:.5px; margin-top:4px;}
+
+/* ---------- World Map ---------- */
+.zone-list{display:flex; flex-direction:column; gap:12px; margin-top:10px;}
+.zone-card{
+  background:linear-gradient(120deg, var(--panel2), var(--panel));
+  border:1px solid var(--line); border-radius:14px; padding:14px 16px;
+  display:flex; align-items:center; gap:14px; position:relative; overflow:hidden;
+}
+.zone-card.locked{opacity:.45; filter:grayscale(.6);}
+.zone-icon{width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0;}
+.zone-info{flex:1; min-width:0;}
+.zone-info h3{margin:0 0 3px; font-size:16px;}
+.zone-info p{margin:0; font-size:12.5px; opacity:.7;}
+.zone-badge{font-size:10px; padding:2px 8px; border-radius:10px; background:var(--danger); margin-left:6px;}
+.zone-badge.done{background:var(--success);}
+
+/* ---------- Battle ---------- */
+#screen-battle{background:linear-gradient(180deg,#0a1230,#141040);}
+.arena{position:relative; padding:14px 14px 6px; min-height:38vh; z-index:1;}
+.combatant{position:absolute; display:flex; flex-direction:column; align-items:center; width:150px;}
+.combatant.enemy{top:6px; right:8px; align-items:flex-end;}
+.combatant.player{bottom:0; left:8px; align-items:flex-start;}
+.hp-panel{
+  background:rgba(10,14,35,.82); border:1px solid var(--line); border-radius:10px; padding:8px 10px; min-width:150px;
+  font-size:12px; backdrop-filter:blur(4px);
+}
+.hp-panel .nm{font-weight:700; font-family:'Orbitron',sans-serif; font-size:12px; display:flex; justify-content:space-between;}
+.bar-track{height:9px; border-radius:6px; background:#1c2350; margin-top:4px; overflow:hidden; border:1px solid rgba(255,255,255,.08);}
+.bar-fill{height:100%; border-radius:6px; transition:width .5s cubic-bezier(.22,.9,.35,1);}
+.bar-fill.hp{background:linear-gradient(90deg,#4ade80,#22c55e);}
+.bar-fill.hp.low{background:linear-gradient(90deg,#f87171,#ef4444);}
+.bar-fill.energy{background:linear-gradient(90deg,#60a5fa,#3b82f6);}
+.combatant .creature-sprite{
+  width:100px; height:100px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:52px; margin:8px 0; position:relative; animation:idleBob 2.6s ease-in-out infinite;
+}
+.combatant.enemy .creature-sprite{animation:idleBob 2.6s ease-in-out infinite, enemyFloat 3.4s ease-in-out infinite;}
+@keyframes idleBob{0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);}}
+@keyframes enemyFloat{0%,100%{transform:translateX(0) translateY(0);} 50%{transform:translateX(-4px) translateY(-4px);}}
+.creature-sprite.hit{animation:hitShake .35s ease !important;}
+@keyframes hitShake{0%,100%{transform:translate(0,0);} 25%{transform:translate(-8px,2px);} 50%{transform:translate(7px,-3px);} 75%{transform:translate(-5px,2px);}}
+.creature-sprite.attack-lunge{animation:lunge .4s ease !important;}
+@keyframes lunge{0%{transform:translateX(0);} 40%{transform:translateX(-22px) scale(1.06);} 100%{transform:translateX(0);}}
+.combatant.enemy .creature-sprite.attack-lunge{animation:lungeR .4s ease !important;}
+@keyframes lungeR{0%{transform:translateX(0);} 40%{transform:translateX(22px) scale(1.06);} 100%{transform:translateX(0);}}
+.dmg-num{
+  position:absolute; top:0; left:50%; transform:translateX(-50%); font-family:'Orbitron',sans-serif; font-weight:900;
+  font-size:26px; color:var(--danger); text-shadow:0 0 8px rgba(0,0,0,.6); pointer-events:none;
+  animation:dmgFloat 1s ease forwards; z-index:10;
+}
+.dmg-num.heal{color:var(--success);}
+.dmg-num.crit{color:var(--gold); font-size:32px;}
+@keyframes dmgFloat{0%{opacity:0; transform:translate(-50%,10px) scale(.6);} 20%{opacity:1; transform:translate(-50%,-10px) scale(1.15);} 100%{opacity:0; transform:translate(-50%,-55px) scale(1);}}
+.flash-overlay{position:fixed; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:200;}
+.flash-overlay.go{animation:flashFx .25s ease;}
+@keyframes flashFx{0%{opacity:.85;} 100%{opacity:0;}}
+.shake{animation:screenShake .35s ease;}
+@keyframes screenShake{0%,100%{transform:translate(0,0);} 20%{transform:translate(-4px,3px);} 40%{transform:translate(4px,-3px);} 60%{transform:translate(-3px,2px);} 80%{transform:translate(3px,-2px);}}
+.particle{position:absolute; border-radius:50%; pointer-events:none; z-index:15;}
+
+.battle-log{
+  margin:0 14px; background:rgba(0,0,0,.35); border:1px solid var(--line); border-radius:10px; padding:8px 12px;
+  font-size:13px; min-height:20px; color:var(--cyan);
+}
+.qbox{margin:12px 14px 0; background:var(--panel2); border:1px solid var(--line); border-radius:14px; padding:14px; z-index:1; position:relative;}
+.qbox .tag{font-size:10.5px; letter-spacing:1px; color:var(--gold); font-weight:700;}
+.qbox .qtext{font-size:16px; margin:8px 0 12px; line-height:1.4;}
+.answers{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+.ans-btn{
+  background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px 10px; font-size:14px; color:var(--white);
+  text-align:left; font-weight:600;
+}
+.ans-btn:active{transform:scale(.97);}
+.ans-btn.correct{background:linear-gradient(135deg,#16a34a,#166534); border-color:#4ade80;}
+.ans-btn.wrong{background:linear-gradient(135deg,#b91c1c,#7f1d1d); border-color:#f87171;}
+.explain{margin-top:10px; font-size:13px; background:rgba(0,0,0,.3); border-radius:8px; padding:10px; border-left:3px solid var(--cyan);}
+.action-bar{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; padding:12px 14px 18px; z-index:1; position:relative;}
+.action-bar .btn{padding:10px 4px; font-size:12.5px; display:flex; flex-direction:column; align-items:center; gap:2px;}
+.action-bar .btn span.ic{font-size:18px;}
+
+/* ---------- Database ---------- */
+.dex-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-top:12px;}
+.dex-card{background:var(--panel2); border:1px solid var(--line); border-radius:14px; padding:12px; text-align:center;}
+.dex-card.unknown{opacity:.5;}
+.dex-card .creature-icon{width:64px; height:64px; font-size:30px;}
+.dex-card h4{margin:8px 0 2px; font-size:13px;}
+.dex-card p{margin:0; font-size:10.5px; opacity:.65;}
+.dex-detail{position:fixed; inset:0; background:rgba(3,6,20,.9); z-index:60; display:none; align-items:center; justify-content:center; padding:20px;}
+.dex-detail.active{display:flex;}
+.dex-detail-card{background:var(--panel2); border:2px solid var(--cyan); border-radius:18px; padding:22px; max-width:380px; width:100%; text-align:center; max-height:85vh; overflow-y:auto;}
+
+/* ---------- Shop / Quests / Inventory lists ---------- */
+.list-card{background:var(--panel2); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px; display:flex; align-items:center; gap:12px;}
+.list-card .icon-box{width:46px; height:46px; border-radius:10px; background:var(--panel); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;}
+.list-card .info{flex:1; min-width:0;}
+.list-card h4{margin:0 0 2px; font-size:14.5px;}
+.list-card p{margin:0; font-size:12px; opacity:.65;}
+.progress-mini{height:6px; border-radius:4px; background:#1c2350; margin-top:6px; overflow:hidden;}
+.progress-mini .fill{height:100%; background:linear-gradient(90deg,var(--cyan),var(--blue));}
+
+/* misc */
+.tabs{display:flex; gap:8px; padding:0 16px; margin-top:10px;}
+.tab-btn{flex:1; padding:9px; border-radius:10px; border:1px solid var(--line); background:var(--panel2); font-size:13px; font-weight:700; color:var(--white); opacity:.6;}
+.tab-btn.active{opacity:1; border-color:var(--cyan); background:var(--panel);}
+.center-msg{text-align:center; opacity:.55; margin-top:30px; font-size:14px;}
+.modal-bg{position:fixed; inset:0; background:rgba(3,6,20,.85); z-index:80; display:none; align-items:center; justify-content:center; padding:20px;}
+.modal-bg.active{display:flex;}
+.modal-box{background:var(--panel2); border:2px solid var(--purple); border-radius:18px; padding:24px; max-width:360px; width:100%; text-align:center;}
+.sound-toggle{position:fixed; top:10px; right:10px; z-index:50; width:38px; height:38px; border-radius:50%; background:var(--panel2); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:16px;}
+.type-chart-row{display:flex; align-items:center; gap:8px; font-size:13px; padding:6px 0; border-bottom:1px dashed var(--line);}
+.badge-lv{background:var(--panel); border:1px solid var(--gold); color:var(--gold); font-size:10px; padding:1px 7px; border-radius:8px; font-weight:700;}
+.footer-space{height:24px;}
+.levelup-banner{
+  position:fixed; top:18%; left:50%; transform:translateX(-50%); z-index:120; background:linear-gradient(135deg,var(--gold),#f59e0b);
+  color:#1a1204; padding:16px 30px; border-radius:16px; font-family:'Orbitron',sans-serif; font-weight:900; font-size:20px;
+  box-shadow:0 0 40px rgba(251,191,36,.6); display:none; text-align:center;
+}
+.levelup-banner.show{display:block; animation:levelPop .9s ease;}
+@keyframes levelPop{0%{opacity:0; transform:translateX(-50%) scale(.5);} 30%{opacity:1; transform:translateX(-50%) scale(1.1);} 45%{transform:translateX(-50%) scale(1);} 85%{opacity:1;} 100%{opacity:0;}}
+.toast{position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:var(--panel2); border:1px solid var(--cyan); padding:10px 20px; border-radius:12px; font-size:13px; z-index:150; opacity:0; pointer-events:none;}
+.toast.show{animation:toastPop 2.2s ease;}
+@keyframes toastPop{0%{opacity:0; transform:translate(-50%,10px);} 12%{opacity:1; transform:translate(-50%,0);} 85%{opacity:1;} 100%{opacity:0; transform:translate(-50%,-6px);}}
+.boss-entrance{position:fixed; inset:0; z-index:180; background:radial-gradient(circle,#3b0764,#070b1a); display:none; align-items:center; justify-content:center; flex-direction:column; text-align:center;}
+.boss-entrance.show{display:flex; animation:bossFlashBg 1.6s ease;}
+@keyframes bossFlashBg{0%{opacity:0;} 15%{opacity:1;} 85%{opacity:1;} 100%{opacity:0;}}
+.boss-entrance h1{font-size:clamp(26px,8vw,50px); color:var(--danger); text-shadow:0 0 30px rgba(239,68,68,.8); letter-spacing:3px; animation:bossShudder .4s infinite;}
+@keyframes bossShudder{0%,100%{transform:translateX(0);} 50%{transform:translateX(3px);}}
+@media (min-width:720px){
+  .content{padding:20px 40px;}
+  .char-grid{grid-template-columns:repeat(3,1fr);}
+  .action-bar{max-width:640px; margin:0 auto; padding-bottom:22px;}
+  .qbox{max-width:640px; margin-left:auto; margin-right:auto;}
+  .arena{max-width:720px; margin:0 auto;}
+  .zone-list{max-width:640px; margin:10px auto 0;}
+}
+</style>
+</head>
+<body>
+<div class="flash-overlay" id="flashOverlay"></div>
+<div class="levelup-banner" id="levelupBanner">LEVEL UP!</div>
+<div class="toast" id="toast"></div>
+<button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊</button>
+
+<div id="app">
+
+<!-- TITLE -->
+<div class="screen active" id="screen-title">
+  <div class="starfield"></div>
+  <div class="title-orb"></div>
+  <h1 class="title-logo">SCIENCE ADVENTURE</h1>
+  <div class="title-sub">THE ELEMENTAL QUEST</div>
+  <div class="title-menu">
+    <button class="btn gold" onclick="startNewGame()">▶ START GAME</button>
+    <button class="btn" id="btnContinue" onclick="continueGame()">⏵ CONTINUE</button>
+    <button class="btn ghost" onclick="showHowTo()">📖 HOW TO PLAY</button>
+    <button class="btn ghost" onclick="openDatabase()">🧬 SCIENCE DATABASE</button>
+    <button class="btn ghost" onclick="showCredits()">✦ CREDITS</button>
+  </div>
+  <div class="title-ver">v1.0 · Indie Science RPG</div>
+</div>
+
+<!-- CUTSCENE -->
+<div class="screen" id="screen-cutscene">
+  <div class="cut-bg starfield"></div>
+  <div class="cut-char" id="cutChar">🧑‍🔬</div>
+  <div class="dialogue-box" onclick="advanceDialogue()">
+    <div class="dialogue-name" id="dlgName">?</div>
+    <div class="dialogue-text" id="dlgText">...</div>
+    <div class="dialogue-next">แตะเพื่อดำเนินเรื่องต่อ ▶</div>
+  </div>
+</div>
+
+<!-- CHARACTER SELECT -->
+<div class="screen" id="screen-charselect">
+  <div class="top-bar"><h2>เลือกสิ่งมีชีวิตคู่ใจ</h2><div></div></div>
+  <div class="content">
+    <p style="opacity:.75">เลือกสิ่งมีชีวิตพลังงานวิทยาศาสตร์ 1 ตัวเพื่อเริ่มการเดินทาง</p>
+    <div class="char-grid" id="charGrid"></div>
+    <div style="text-align:center; margin-top:22px;">
+      <button class="btn gold" id="btnConfirmChar" onclick="confirmCharacter()" disabled>ยืนยันการเลือก</button>
+    </div>
+  </div>
+</div>
+<!-- WORLD MAP -->
+<div class="screen" id="screen-map">
+  <div class="top-bar">
+    <h2>🗺️ WORLD MAP</h2>
+    <button class="btn ghost" style="padding:8px 12px;" onclick="openMenu()">☰ เมนู</button>
+  </div>
+  <div class="content">
+    <div class="hud-stats" id="mapHud"></div>
+    <div class="zone-list" id="zoneList"></div>
+    <div class="footer-space"></div>
+  </div>
+</div>
+
+<!-- BATTLE -->
+<div class="screen" id="screen-battle">
+  <div class="top-bar"><h2 id="battleTitle">⚔️ BATTLE</h2><span id="battleZoneTag" style="font-size:12px; opacity:.7;"></span></div>
+  <div class="arena" id="arena">
+    <div class="combatant enemy" id="enemyBox">
+      <div class="hp-panel">
+        <div class="nm"><span id="enemyName">-</span><span class="badge-lv" id="enemyLv">Lv1</span></div>
+        <div class="bar-track"><div class="bar-fill hp" id="enemyHpBar" style="width:100%"></div></div>
+      </div>
+      <div class="creature-sprite" id="enemySprite">?</div>
+    </div>
+    <div class="combatant player" id="playerBox">
+      <div class="creature-sprite" id="playerSprite">?</div>
+      <div class="hp-panel">
+        <div class="nm"><span id="playerName">-</span><span class="badge-lv" id="playerLv">Lv1</span></div>
+        <div class="bar-track"><div class="bar-fill hp" id="playerHpBar" style="width:100%"></div></div>
+        <div class="bar-track"><div class="bar-fill energy" id="playerEnBar" style="width:100%"></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="battle-log" id="battleLog">การต่อสู้เริ่มขึ้น!</div>
+ <div class="qbox" id="qbox" style="display:none;">
+    <div class="tag" id="qTag">PHYSICS · EASY</div>
+    <div class="qtext" id="qText">คำถาม...</div>
+    <div class="answers" id="qAnswers"></div>
+    <div class="explain" id="qExplain" style="display:none;"></div>
+  </div>
+
+  <div class="action-bar" id="actionBar">
+    <button class="btn" onclick="battleAction('attack')"><span class="ic">🧪</span>SCIENCE<br>ATTACK</button>
+    <button class="btn purple" onclick="battleAction('skill')"><span class="ic">✨</span>SKILL</button>
+    <button class="btn ghost" onclick="battleAction('item')"><span class="ic">🎒</span>ITEM</button>
+    <button class="btn gold" id="captureBtn" onclick="battleAction('capture')"><span class="ic">🔴</span>CAPTURE</button>
+    <button class="btn danger" onclick="battleAction('run')"><span class="ic">🏃</span>RUN</button>
+  </div>
+</div>
+
+<!-- MENU (pause) -->
+<div class="screen" id="screen-menu">
+  <div class="top-bar"><h2>☰ MENU</h2><button class="btn ghost" style="padding:8px 12px;" onclick="closeMenu()">✕ ปิด</button></div>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="team" onclick="switchMenuTab('team')">ทีม</button>
+    <button class="tab-btn" data-tab="quest" onclick="switchMenuTab('quest')">เควส</button>
+    <button class="tab-btn" data-tab="shop" onclick="switchMenuTab('shop')">ร้านค้า</button>
+    <button class="tab-btn" data-tab="dex" onclick="switchMenuTab('dex')">ฐานข้อมูล</button>
+    <button class="tab-btn" data-tab="opt" onclick="switchMenuTab('opt')">ตั้งค่า</button>
+  </div>
+  <div class="content" id="menuContent"></div>
+</div>
+<!-- GAME OVER -->
+<div class="screen" id="screen-gameover">
+  <div class="content" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center;">
+    <div style="font-size:70px;">💥</div>
+    <h1 class="font-display" style="color:var(--danger); font-size:32px;">GAME OVER</h1>
+    <p style="opacity:.75; max-width:320px;">พลังงานของคุณหมดลง... แต่ความรู้ทางวิทยาศาสตร์ไม่เคยสูญเปล่า ลองอีกครั้ง!</p>
+    <div style="display:flex; flex-direction:column; gap:10px; width:min(280px,80vw); margin-top:16px;">
+      <button class="btn gold" onclick="retryBattle()">🔁 RETRY</button>
+      <button class="btn" onclick="backToMapFromGameOver()">🗺️ BACK TO MAP</button>
+      <button class="btn ghost" onclick="goTitle()">🏠 MAIN MENU</button>
+    </div>
+  </div>
+</div>
+
+<!-- VICTORY / ENDING -->
+<div class="screen" id="screen-ending">
+  <div class="content" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center;">
+    <div style="font-size:70px;">🏆</div>
+    <h1 class="font-display" style="background:linear-gradient(90deg,var(--gold),var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent; font-size:28px;">SCIENCE SAVED THE WORLD!</h1>
+    <div id="endingStats" style="margin:14px 0; font-size:14px; line-height:1.9;"></div>
+    <div id="endingRank" style="font-size:46px; font-family:'Orbitron',sans-serif; font-weight:900; color:var(--gold); margin:6px 0;"></div>
+    <div style="display:flex; flex-direction:column; gap:10px; width:min(280px,80vw); margin-top:10px;">
+      <button class="btn gold" onclick="enterFreePlay()">🌍 FREE PLAY MODE</button>
+      <button class="btn ghost" onclick="goTitle()">🏠 MAIN MENU</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<div class="modal-bg" id="modalBg"><div class="modal-box" id="modalBox"></div></div>
+<div class="dex-detail" id="dexDetail"><div class="dex-detail-card" id="dexDetailCard"></div></div>
+<div class="boss-entrance" id="bossEntrance"><h1 id="bossEntranceName">BOSS</h1><p style="opacity:.8; letter-spacing:2px;">A POWERFUL PRESENCE APPROACHES</p></div>
+<script>
+/* =========================================================
+   SCIENCE ADVENTURE: THE ELEMENTAL QUEST
+   Single-file HTML/CSS/JS RPG — original characters & world
+   ========================================================= */
+
+/* ---------------- AUDIO ---------------- */
+let audioCtx = null;
+function ac(){ if(!audioCtx){ try{audioCtx = new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } return audioCtx; }
+function beep(freq, dur, type, vol, delay){
+  if(!state.settings.sound) return;
+  const c = ac(); if(!c) return;
+  delay = delay||0;
+  const t0 = c.currentTime + delay;
+  const osc = c.createOscillator(); const gain = c.createGain();
+  osc.type = type||'sine'; osc.frequency.setValueAtTime(freq, t0);
+  gain.gain.setValueAtTime(0, t0);
+  gain.gain.linearRampToValueAtTime(vol||0.15, t0+0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, t0+dur);
+  osc.connect(gain); gain.connect(c.destination);
+  osc.start(t0); osc.stop(t0+dur+0.02);
+}
+const SFX = {
+  click:()=>beep(520,0.08,'square',0.08),
+  correct:()=>{beep(660,0.12,'triangle',0.15); beep(880,0.16,'triangle',0.15,0.1);},
+  wrong:()=>{beep(180,0.25,'sawtooth',0.14); beep(120,0.3,'sawtooth',0.12,0.08);},
+  attack:()=>{beep(200,0.08,'square',0.15); beep(90,0.15,'square',0.12,0.05);},
+  levelup:()=>{beep(523,0.1,'triangle',0.15); beep(659,0.1,'triangle',0.15,0.1); beep(784,0.2,'triangle',0.18,0.2);},
+  capture:()=>{beep(300,0.1,'sine',0.12); beep(500,0.1,'sine',0.12,0.1); beep(700,0.18,'sine',0.15,0.2);},
+  boss:()=>{beep(80,0.4,'sawtooth',0.2); beep(60,0.5,'sawtooth',0.18,0.15);},
+  victory:()=>{[523,659,784,1046].forEach((f,i)=>beep(f,0.25,'triangle',0.15,i*0.15));},
+};
+function toggleSound(){
+  state.settings.sound = !state.settings.sound;
+  document.getElementById('soundToggle').textContent = state.settings.sound ? '🔊' : '🔇';
+  saveGame();
+}
+
+/* ---------------- DATA: TYPES ---------------- */
+const TYPES = {
+  Physics:{color:'#64748b', label:'PHYSICS'},
+  Chemistry:{color:'#22c55e', label:'CHEMISTRY'},
+  Biology:{color:'#84cc16', label:'BIOLOGY'},
+  Energy:{color:'#f97316', label:'ENERGY'},
+  Electric:{color:'#eab308', label:'ELECTRIC'},
+  Thermal:{color:'#ef4444', label:'THERMAL'},
+  Molecular:{color:'#a855f7', label:'MOLECULAR'},
+  Space:{color:'#6366f1', label:'SPACE'},
+};
+// atk type is strong against def type
+const CHART = {
+  Electric:'Energy', Energy:'Thermal', Thermal:'Molecular', Molecular:'Biology',
+  Biology:'Chemistry', Chemistry:'Physics', Physics:'Electric'
+};
+function typeMultiplier(atkType, defType){
+  if(CHART[atkType]===defType) return 1.5;
+  if(CHART[defType]===atkType) return 0.7;
+  return 1.0;
+}
+/* ---------------- DATA: CREATURES ---------------- */
+const CREATURES = {
+  voltix:{id:'voltix', name:'Voltix', type:'Electric', icon:'⚡', baseHp:32, baseAtk:9, baseDef:5,
+    ability:'Spark Surge — เพิ่มความเสียหายไฟฟ้า', starter:true,
+    sci:'ไฟฟ้าเกิดจากการเคลื่อนที่ของอิเล็กตรอนอิสระผ่านตัวนำ กระแสไฟฟ้าคือปริมาณประจุที่ไหลผ่านต่อหน่วยเวลา'},
+  molex:{id:'molex', name:'Molex', type:'Molecular', icon:'🧬', baseHp:34, baseAtk:8, baseDef:7,
+    ability:'Bond Break — สลายพันธะโมเลกุลของศัตรู', starter:true,
+    sci:'โมเลกุลเกิดจากอะตอมตั้งแต่สองอะตอมขึ้นไปยึดกันด้วยพันธะเคมี มวลโมเลกุลคือผลรวมมวลอะตอมทั้งหมด'},
+  bioluma:{id:'bioluma', name:'Bioluma', type:'Biology', icon:'🌿', baseHp:36, baseAtk:7, baseDef:8,
+    ability:'Photosynth — ฟื้นฟู HP ด้วยแสง', starter:true,
+    sci:'การสังเคราะห์ด้วยแสงคือกระบวนการที่พืชเปลี่ยนพลังงานแสงเป็นพลังงานเคมีในรูปน้ำตาล'},
+  atomix:{id:'atomix', name:'Atomix', type:'Chemistry', icon:'⚛️', baseHp:30, baseAtk:9, baseDef:6,
+    ability:'Nuclear Pulse — ปลดปล่อยพลังงานจากนิวเคลียส',
+    sci:'อะตอมเป็นหน่วยพื้นฐานของธาตุที่ยังคงสมบัติทางเคมีของธาตุนั้นไว้ ประกอบด้วยโปรตอน นิวตรอน และอิเล็กตรอน'},
+  thermo:{id:'thermo', name:'Thermo', type:'Thermal', icon:'🔥', baseHp:31, baseAtk:10, baseDef:5,
+    ability:'Heat Wave — คลื่นความร้อนแผ่กระจาย',
+    sci:'ความร้อนคือพลังงานที่ถ่ายเทจากบริเวณอุณหภูมิสูงไปยังบริเวณอุณหภูมิต่ำ'},
+  magneton:{id:'magneton', name:'Magneton', type:'Physics', icon:'🧲', baseHp:33, baseAtk:8, baseDef:8,
+    ability:'Field Pull — ดึงดูดด้วยสนามแม่เหล็ก',
+    sci:'สนามแม่เหล็กเกิดจากประจุไฟฟ้าที่เคลื่อนที่ ขั้วเหมือนกันผลักกัน ขั้วต่างกันดูดกัน'},
+  photon:{id:'photon', name:'Photon', type:'Energy', icon:'💡', baseHp:29, baseAtk:10, baseDef:4,
+    ability:'Light Burst — ระเบิดแสงความเข้มสูง',
+    sci:'แสงเป็นคลื่นแม่เหล็กไฟฟ้าที่เคลื่อนที่ด้วยความเร็วประมาณ 3×10^8 เมตรต่อวินาทีในสุญญากาศ'},
+  chemia:{id:'chemia', name:'Chemia', type:'Chemistry', icon:'🧪', baseHp:32, baseAtk:8, baseDef:7,
+    ability:'Acid Rain — ฝนกรดกัดกร่อน',
+    sci:'ปฏิกิริยากรด-เบสคือปฏิกิริยาที่กรดทำปฏิกิริยากับเบสเกิดเป็นเกลือและน้ำ'},
+  gravix:{id:'gravix', name:'Gravix', type:'Physics', icon:'🪐', baseHp:38, baseAtk:7, baseDef:9,
+    ability:'Gravity Well — บิดเบือนแรงโน้มถ่วง',
+    sci:'แรงโน้มถ่วงคือแรงดึงดูดระหว่างมวล ยิ่งมวลมากและระยะห่างน้อย แรงยิ่งมาก ตามกฎของนิวตัน'},
+  astrion:{id:'astrion', name:'Astrion', type:'Space', icon:'✨', baseHp:34, baseAtk:9, baseDef:6,
+    ability:'Nova Flare — พลังระเบิดจากดาวฤกษ์',
+    sci:'ดาวฤกษ์คือก้อนแก๊สขนาดใหญ่ที่เกิดปฏิกิริยานิวเคลียร์ฟิวชันที่แกนกลาง ปลดปล่อยแสงและความร้อน'},
+  // Bosses (unique, stronger stat multipliers, reuse types)
+  graviton:{id:'graviton', name:'GRAVITON', type:'Physics', icon:'🌑', baseHp:70, baseAtk:12, baseDef:10, boss:true,
+    ability:'Crushing Field', sci:'บอสควบคุมแรงโน้มถ่วงของหุบเขาฟิสิกส์ทั้งลูก'},
+  alchemor:{id:'alchemor', name:'ALCHEMOR', type:'Chemistry', icon:'⚗️', baseHp:75, baseAtk:12, baseDef:11, boss:true,
+    ability:'Reaction Overload', sci:'สิ่งมีชีวิตที่เกิดจากปฏิกิริยาเคมีที่ไม่เสถียรในห้องทดลอง'},
+  energon:{id:'energon', name:'ENERGON', type:'Energy', icon:'🔆', baseHp:78, baseAtk:13, baseDef:9, boss:true,
+    ability:'Overcharge Beam', sci:'แหล่งพลังงานมหาศาลที่หลุดออกจากโรงไฟฟ้าใจกลางเมือง'},
+  mutamole:{id:'mutamole', name:'MUTAMOLE', type:'Molecular', icon:'🍄', baseHp:80, baseAtk:12, baseDef:12, boss:true,
+    ability:'Molecular Storm', sci:'สิ่งมีชีวิตกลายพันธุ์จากการรวมตัวของโมเลกุลในป่าลึกลับ'},
+  voltar:{id:'voltar', name:'VOLTAR', type:'Electric', icon:'🌩️', baseHp:82, baseAtk:14, baseDef:9, boss:true,
+    ability:'Thunder Cage', sci:'เครื่องจักรไฟฟ้าที่ตื่นขึ้นและมีพลังเกินควบคุมในโรงงาน'},
+  astralon:{id:'astralon', name:'ASTRALON', type:'Space', icon:'🌌', baseHp:85, baseAtk:13, baseDef:11, boss:true,
+    ability:'Cosmic Collapse', sci:'ปรากฏการณ์คล้ายหลุมดำจิ๋วที่หอดูดาวตรวจพบ'},
+  sciencecore:{id:'sciencecore', name:'THE SCIENCE CORE', type:'Space', icon:'🔷', baseHp:130, baseAtk:16, baseDef:13, boss:true, finalBoss:true,
+    ability:'Omni Discharge', sci:'แก่นพลังงานที่รวมทุกสาขาวิชาวิทยาศาสตร์ไว้ด้วยกัน ต้นตอของเหตุขัดข้องทั้งหมด'},
+};
+const STARTERS = ['voltix','molex','bioluma'];
+/* ---------------- DATA: ZONES ---------------- */
+const ZONES = [
+  {id:'physics_valley', name:'Physics Valley', icon:'⛰️', color:'#64748b', cat:'physics',
+    desc:'หุบเขาแห่งแรงและการเคลื่อนที่', wild:['magneton','gravix'], boss:'graviton', bossName:'GRAVITON', reqLevel:1},
+  {id:'chemistry_lab', name:'Chemistry Lab', icon:'⚗️', color:'#22c55e', cat:'chemistry',
+    desc:'ห้องทดลองที่เต็มไปด้วยปฏิกิริยา', wild:['atomix','chemia'], boss:'alchemor', bossName:'ALCHEMOR', reqLevel:3},
+  {id:'energy_city', name:'Energy City', icon:'🏙️', color:'#f97316', cat:'physics',
+    desc:'มหานครแห่งพลังงานไม่มีที่สิ้นสุด', wild:['photon','voltix'], boss:'energon', bossName:'ENERGON', reqLevel:5},
+  {id:'molecular_forest', name:'Molecular Forest', icon:'🌲', color:'#a855f7', cat:'chemistry',
+    desc:'ป่าลึกลับแห่งโมเลกุลมีชีวิต', wild:['molex','bioluma'], boss:'mutamole', bossName:'MUTAMOLE', reqLevel:7},
+  {id:'electric_factory', name:'Electric Factory', icon:'🏭', color:'#eab308', cat:'physics',
+    desc:'โรงงานไฟฟ้าที่ตื่นขึ้นมาเอง', wild:['voltix','magneton'], boss:'voltar', bossName:'VOLTAR', reqLevel:9},
+  {id:'space_observatory', name:'Space Observatory', icon:'🔭', color:'#6366f1', cat:'space',
+    desc:'หอดูดาวเหนือเมฆที่มองเห็นจักรวาล', wild:['astrion','photon'], boss:'astralon', bossName:'ASTRALON', reqLevel:12},
+  {id:'final_lab', name:'Final Science Lab', icon:'🏛️', color:'#ef4444', cat:'all',
+    desc:'ต้นกำเนิดของเหตุขัดข้องทั้งหมด', wild:['atomix','gravix','photon'], boss:'sciencecore', bossName:'THE SCIENCE CORE', reqLevel:15, isFinal:true},
+];
+
+/* ---------------- DATA: QUESTIONS ---------------- */
+// cat: physics/chemistry/biology/space  diff: easy/normal/hard/boss
+const QUESTIONS = [
+// PHYSICS - easy
+{cat:'physics',diff:'easy',q:'สูตรความเร็วคือข้อใด?',choices:['v = s/t','v = s×t','v = t/s','v = s+t'],a:0,exp:'ความเร็ว (v) หาได้จากระยะทาง (s) หารด้วยเวลา (t)'},
+{cat:'physics',diff:'easy',q:'วัตถุเคลื่อนที่ด้วยความเร็ว 20 m/s เป็นเวลา 5 วินาที จะเคลื่อนที่ได้ระยะทางเท่าใด?',choices:['25 m','50 m','100 m','200 m'],a:2,exp:'ระยะทาง = ความเร็ว × เวลา = 20×5 = 100 เมตร'},
+{cat:'physics',diff:'easy',q:'แรงมีหน่วยเป็นอะไร?',choices:['จูล','นิวตัน','วัตต์','ปาสคาล'],a:1,exp:'แรงมีหน่วยเป็นนิวตัน (N) ตามชื่อไอแซก นิวตัน'},
+{cat:'physics',diff:'easy',q:'กฎข้อที่ 1 ของนิวตันเกี่ยวข้องกับอะไร?',choices:['ความเฉื่อย','แรงปฏิกิริยา','โมเมนตัม','พลังงาน'],a:0,exp:'กฎข้อ 1 คือกฎแห่งความเฉื่อย วัตถุจะรักษาสภาพเดิมจนกว่าจะมีแรงภายนอกมากระทำ'},
+// PHYSICS - normal
+{cat:'physics',diff:'normal',q:'วัตถุมวล 4 kg ถูกแรง 20 N กระทำ จะมีความเร่งเท่าใด? (F=ma)',choices:['2 m/s²','5 m/s²','8 m/s²','80 m/s²'],a:1,exp:'a = F/m = 20/4 = 5 m/s²'},
+{cat:'physics',diff:'normal',q:'งาน (Work) คำนวณจากสูตรใด?',choices:['W = F×d','W = F/d','W = m×a','W = F+d'],a:0,exp:'งาน = แรง × ระยะทางที่เคลื่อนที่ในทิศทางของแรง'},
+{cat:'physics',diff:'normal',q:'กฎข้อที่ 3 ของนิวตันกล่าวว่าอย่างไร?',choices:['ทุกแรงมีปฏิกิริยาเท่ากันแต่ทิศตรงข้าม','วัตถุเคลื่อนที่เป็นเส้นตรง','แรงเท่ากับมวลคูณความเร่ง','พลังงานคงที่เสมอ'],a:0,exp:'ทุกแรงกริยาย่อมมีแรงปฏิกิริยาขนาดเท่ากันแต่ทิศทางตรงข้ามเสมอ'},
+{cat:'physics',diff:'normal',q:'โมเมนตัมคำนวณจากสูตรใด?',choices:['p = mv','p = m/v','p = v/m','p = m+v'],a:0,exp:'โมเมนตัม (p) = มวล (m) × ความเร็ว (v)'},
+// PHYSICS - hard
+{cat:'physics',diff:'hard',q:'รถมวล 1000 kg เคลื่อนที่ด้วยความเร็ว 10 m/s มีพลังงานจลน์เท่าใด? (Ek=½mv²)',choices:['5,000 J','10,000 J','50,000 J','100,000 J'],a:2,exp:'Ek = ½×1000×10² = ½×1000×100 = 50,000 จูล'},
+{cat:'physics',diff:'hard',q:'วัตถุตกอิสระจากที่สูง 45 m (g=10 m/s²) ใช้เวลากี่วินาทีถึงพื้น? (h=½gt²)',choices:['2 วินาที','3 วินาที','4.5 วินาที','9 วินาที'],a:1,exp:'45 = ½×10×t² → t² = 9 → t = 3 วินาที'},
+{cat:'physics',diff:'hard',q:'ความถี่ของคลื่นสัมพันธ์กับความยาวคลื่นอย่างไร (v คงที่)?',choices:['แปรผันตรง','แปรผกผัน','ไม่สัมพันธ์กัน','เท่ากันเสมอ'],a:1,exp:'v=fλ เมื่อ v คงที่ ความถี่ (f) กับความยาวคลื่น (λ) แปรผกผันกัน'},
+// PHYSICS - boss
+{cat:'physics',diff:'boss',q:'วัตถุ A มวล 2 kg ความเร็ว 6 m/s ชนวัตถุ B มวล 4 kg ที่หยุดนิ่ง แล้วเกาะติดกัน ความเร็วรวมหลังชนคือเท่าใด?',choices:['1 m/s','2 m/s','3 m/s','4 m/s'],a:1,exp:'อนุรักษ์โมเมนตัม: 2×6 = (2+4)×v → v = 12/6 = 2 m/s'},
+{cat:'physics',diff:'boss',q:'ดาวเทียมโคจรรอบโลก แรงใดทำหน้าที่เป็นแรงสู่ศูนย์กลาง?',choices:['แรงแม่เหล็ก','แรงโน้มถ่วง','แรงเสียดทาน','แรงไฟฟ้าสถิต'],a:1,exp:'แรงโน้มถ่วงระหว่างโลกกับดาวเทียมทำหน้าที่เป็นแรงสู่ศูนย์กลางในการโคจร'},
+
+// CHEMISTRY - easy
+{cat:'chemistry',diff:'easy',q:'อะตอมประกอบด้วยอนุภาคใดบ้าง?',choices:['โปรตอน นิวตรอน อิเล็กตรอน','โปรตอนอย่างเดียว','อิเล็กตรอนอย่างเดียว','ควาร์กอย่างเดียว'],a:0,exp:'อะตอมประกอบด้วยโปรตอน นิวตรอนในนิวเคลียส และอิเล็กตรอนที่วิ่งรอบนอก'},
+{cat:'chemistry',diff:'easy',q:'เลขอะตอมของธาตุคือจำนวนใด?',choices:['จำนวนนิวตรอน','จำนวนโปรตอน','จำนวนอิเล็กตรอนวงนอก','มวลอะตอมรวม'],a:1,exp:'เลขอะตอม (Z) คือจำนวนโปรตอนในนิวเคลียสของธาตุ'},
+{cat:'chemistry',diff:'easy',q:'น้ำมีสูตรเคมีว่าอะไร?',choices:['CO2','H2O','O2','NaCl'],a:1,exp:'น้ำประกอบด้วยไฮโดรเจน 2 อะตอมและออกซิเจน 1 อะตอม (H2O)'},
+{cat:'chemistry',diff:'easy',q:'สารละลายที่มี pH ต่ำกว่า 7 มีสมบัติแบบใด?',choices:['เป็นกรด','เป็นเบส','เป็นกลาง','ไม่มีสมบัติ'],a:0,exp:'pH ต่ำกว่า 7 แสดงความเป็นกรด ส่วน pH สูงกว่า 7 คือเบส'},
+// CHEMISTRY - normal
+{cat:'chemistry',diff:'normal',q:'ไอโซโทปของธาตุเดียวกันมีอะไรต่างกัน?',choices:['จำนวนโปรตอน','จำนวนนิวตรอน','จำนวนอิเล็กตรอน','ชนิดธาตุ'],a:1,exp:'ไอโซโทปมีจำนวนโปรตอนเท่ากันแต่จำนวนนิวตรอนต่างกัน ทำให้เลขมวลต่างกัน'},
+{cat:'chemistry',diff:'normal',q:'1 โมลของสารมีจำนวนอนุภาคเท่าใด?',choices:['6.02×10^23','3.14×10^8','9.8×10^10','1×10^6'],a:0,exp:'เลขอาโวกาโดร (Avogadro) เท่ากับ 6.02×10^23 อนุภาคต่อโมล'},
+{cat:'chemistry',diff:'normal',q:'CH4 มีมวลโมเลกุลเท่าใด? (C=12, H=1)',choices:['13','14','16','18'],a:2,exp:'มวลโมเลกุล = 12 + (1×4) = 12+4 = 16'},
+{cat:'chemistry',diff:'normal',q:'พันธะโควาเลนต์เกิดจากอะไร?',choices:['การใช้อิเล็กตรอนร่วมกัน','การให้อิเล็กตรอนทั้งหมด','แรงดึงดูดระหว่างไอออน','การสูญเสียโปรตอน'],a:0,exp:'พันธะโควาเลนต์เกิดจากอะตอมสองอะตอมใช้อิเล็กตรอนคู่ร่วมกัน'},
+// CHEMISTRY - hard
+{cat:'chemistry',diff:'hard',q:'ถ้ามีสาร 2 โมล ต้องการกี่กรัม สำหรับ NaOH (มวลโมเลกุล=40)?',choices:['20 g','40 g','60 g','80 g'],a:3,exp:'มวล = โมล × มวลโมเลกุล = 2×40 = 80 กรัม'},
+{cat:'chemistry',diff:'hard',q:'ในสมการ 2H2 + O2 → 2H2O อัตราส่วนโมลของ H2 ต่อ O2 คือเท่าใด?',choices:['1:1','2:1','1:2','3:1'],a:1,exp:'จากสมการที่ดุลแล้ว H2 ใช้ 2 โมล ต่อ O2 1 โมล อัตราส่วน 2:1'},
+{cat:'chemistry',diff:'hard',q:'แก๊สในภาชนะปิดที่อุณหภูมิคงที่ เมื่อปริมาตรลดลง ความดันจะเป็นอย่างไร? (กฎของบอยล์)',choices:['เพิ่มขึ้น','ลดลง','คงที่','ไม่แน่นอน'],a:0,exp:'กฎของบอยล์: ความดันแปรผกผันกับปริมาตร เมื่อปริมาตรลด ความดันจึงเพิ่มขึ้น'},
+// CHEMISTRY - boss
+{cat:'chemistry',diff:'boss',q:'ธาตุ X มีเลขอะตอม 11 และเลขมวล 23 มีจำนวนนิวตรอนเท่าใด?',choices:['11','12','23','34'],a:1,exp:'นิวตรอน = เลขมวล - เลขอะตอม = 23-11 = 12'},
+{cat:'chemistry',diff:'boss',q:'สารละลายกรด HCl เข้มข้น ทำปฏิกิริยากับ NaOH ได้ผลิตภัณฑ์ใด?',choices:['NaCl + H2O','NaH + ClO','Na + HClO','NaOH2 + Cl'],a:0,exp:'ปฏิกิริยากรด-เบส: HCl + NaOH → NaCl (เกลือ) + H2O (น้ำ)'},
+
+// BIOLOGY - easy
+{cat:'biology',diff:'easy',q:'หน่วยพื้นฐานของสิ่งมีชีวิตคืออะไร?',choices:['เซลล์','เนื้อเยื่อ','อวัยวะ','ระบบอวัยวะ'],a:0,exp:'เซลล์เป็นหน่วยพื้นฐานที่เล็กที่สุดของสิ่งมีชีวิตทุกชนิด'},
+{cat:'biology',diff:'easy',q:'DNA ย่อมาจากอะไร?',choices:['Deoxyribonucleic Acid','Dynamic Nuclear Acid','Diribose Acid','Double Nitrogen Atom'],a:0,exp:'DNA คือ Deoxyribonucleic Acid สารพันธุกรรมที่เก็บข้อมูลของสิ่งมีชีวิต'},
+{cat:'biology',diff:'easy',q:'ส่วนใดของเซลล์พืชที่ทำหน้าที่สังเคราะห์แสง?',choices:['คลอโรพลาสต์','ไมโทคอนเดรีย','นิวเคลียส','ไรโบโซม'],a:0,exp:'คลอโรพลาสต์มีคลอโรฟิลล์ ใช้จับพลังงานแสงในการสังเคราะห์ด้วยแสง'},
+{cat:'biology',diff:'easy',q:'ระบบนิเวศประกอบด้วยอะไรบ้าง?',choices:['สิ่งมีชีวิตกับสิ่งแวดล้อม','เซลล์อย่างเดียว','แร่ธาตุอย่างเดียว','อากาศอย่างเดียว'],a:0,exp:'ระบบนิเวศคือความสัมพันธ์ระหว่างสิ่งมีชีวิตกับสิ่งแวดล้อมที่ไม่มีชีวิตในพื้นที่หนึ่ง'},
+// BIOLOGY - normal
+{cat:'biology',diff:'normal',q:'การสังเคราะห์ด้วยแสงใช้แก๊สใดเป็นวัตถุดิบหลัก?',choices:['ออกซิเจน','คาร์บอนไดออกไซด์','ไนโตรเจน','ไฮโดรเจน'],a:1,exp:'พืชใช้คาร์บอนไดออกไซด์และน้ำ พร้อมแสงแดด สร้างน้ำตาลและปล่อยออกซิเจน'},
+{cat:'biology',diff:'normal',q:'ลักษณะทางพันธุกรรมถ่ายทอดผ่านอะไร?',choices:['ยีนบนโครโมโซม','เนื้อเยื่อกล้ามเนื้อ','ของเหลวในเซลล์','ผนังเซลล์'],a:0,exp:'ยีนที่อยู่บนโครโมโซมเป็นตัวควบคุมการถ่ายทอดลักษณะทางพันธุกรรม'},
+{cat:'biology',diff:'normal',q:'ระบบไหนในร่างกายทำหน้าที่ลำเลียงออกซิเจน?',choices:['ระบบหายใจและไหลเวียนเลือด','ระบบย่อยอาหาร','ระบบขับถ่าย','ระบบประสาท'],a:0,exp:'ปอดรับออกซิเจนแล้วเลือดผ่านระบบไหลเวียนนำออกซิเจนไปเลี้ยงเซลล์ทั่วร่างกาย'},
+// BIOLOGY - hard
+{cat:'biology',diff:'hard',q:'ถ้าพ่อแม่มีจีโนไทป์ Aa x Aa ลูกที่ได้จะมีโอกาสเป็น aa เท่าใด?',choices:['0%','25%','50%','75%'],a:1,exp:'Aa × Aa ให้อัตราส่วน 1AA:2Aa:1aa ดังนั้นโอกาสเป็น aa คือ 25%'},
+{cat:'biology',diff:'hard',q:'ห่วงโซ่อาหารในระบบนิเวศ พลังงานส่วนใหญ่จะเป็นอย่างไรเมื่อผ่านแต่ละระดับ?',choices:['เพิ่มขึ้นเรื่อยๆ','ลดลงเรื่อยๆ','คงที่เท่าเดิม','เปลี่ยนเป็นศูนย์ทันที'],a:1,exp:'พลังงานจะลดลงราว 90% ในแต่ละระดับโภชนาการ เนื่องจากสูญเสียเป็นความร้อน'},
+// BIOLOGY - boss
+{cat:'biology',diff:'boss',q:'เอนไซม์มีผลต่ออัตราการเกิดปฏิกิริยาเคมีในเซลล์อย่างไร?',choices:['เร่งปฏิกิริยาโดยลดพลังงานกระตุ้น','หยุดปฏิกิริยาทั้งหมด','เพิ่มพลังงานกระตุ้น','ไม่มีผลใดๆ'],a:0,exp:'เอนไซม์เป็นตัวเร่งปฏิกิริยาชีวภาพ ทำงานโดยลดพลังงานกระตุ้นของปฏิกิริยา'},
+
+// SPACE - easy
+{cat:'space',diff:'easy',q:'ดาวเคราะห์ที่อยู่ใกล้ดวงอาทิตย์ที่สุดคือดาวใด?',choices:['ดาวศุกร์','ดาวพุธ','โลก','ดาวอังคาร'],a:1,exp:'ดาวพุธ (Mercury) อยู่ใกล้ดวงอาทิตย์มากที่สุดในระบบสุริยะ'},
+{cat:'space',diff:'easy',q:'ดวงอาทิตย์จัดเป็นอะไร?',choices:['ดาวเคราะห์','ดาวฤกษ์','ดาวบริวาร','ดาวหาง'],a:1,exp:'ดวงอาทิตย์คือดาวฤกษ์ที่เกิดปฏิกิริยานิวเคลียร์ฟิวชันให้พลังงานแสงและความร้อน'},
+{cat:'space',diff:'easy',q:'ชั้นบรรยากาศที่ห่อหุ้มโลกมีก๊าซใดมากที่สุด?',choices:['ออกซิเจน','ไนโตรเจน','คาร์บอนไดออกไซด์','ไฮโดรเจน'],a:1,exp:'บรรยากาศโลกประกอบด้วยไนโตรเจนประมาณ 78% มากที่สุด'},
+// SPACE - normal
+{cat:'space',diff:'normal',q:'เหตุใดโลกจึงมีฤดูกาล?',choices:['แกนโลกเอียง','โลกอยู่ใกล้ดวงอาทิตย์มากขึ้น','ดวงจันทร์บังแสง','โลกหมุนเร็วขึ้น'],a:0,exp:'แกนโลกเอียงทำมุมประมาณ 23.5° ทำให้แต่ละซีกโลกได้รับแสงอาทิตย์ไม่เท่ากันตลอดปี เกิดฤดูกาล'},
+{cat:'space',diff:'normal',q:'ดาวเคราะห์ดวงใดใหญ่ที่สุดในระบบสุริยะ?',choices:['โลก','ดาวเสาร์','ดาวพฤหัสบดี','ดาวยูเรนัส'],a:2,exp:'ดาวพฤหัสบดี (Jupiter) เป็นดาวเคราะห์ที่มีขนาดใหญ่ที่สุดในระบบสุริยะ'},
+// SPACE - hard
+{cat:'space',diff:'hard',q:'ดาวฤกษ์ผลิตพลังงานจากกระบวนการใด?',choices:['ปฏิกิริยานิวเคลียร์ฟิวชัน','การเผาไหม้เชื้อเพลิงฟอสซิล','ปฏิกิริยาเคมีทั่วไป','แรงเสียดทาน'],a:0,exp:'ดาวฤกษ์หลอมนิวเคลียสไฮโดรเจนเป็นฮีเลียมที่แกนกลาง ปลดปล่อยพลังงานมหาศาล'},
+// SPACE - boss
+{cat:'space',diff:'boss',q:'หลุมดำ (Black Hole) เกิดขึ้นได้อย่างไร?',choices:['ดาวฤกษ์มวลมากยุบตัวจากแรงโน้มถ่วงของตัวเอง','ดาวเคราะห์ชนกัน','แสงรวมตัวกันหนาแน่น','อุกกาบาตพุ่งชนดวงอาทิตย์'],a:0,exp:'เมื่อดาวฤกษ์มวลมากหมดเชื้อเพลิง แรงโน้มถ่วงจะทำให้มันยุบตัวเป็นหลุมดำที่มีแรงโน้มถ่วงสูงมาก'},
+];
+/* ---------------- DATA: QUESTS ---------------- */
+function freshQuests(){
+  return [
+    {id:'q1', title:'ตอบคำถามฟิสิกส์ให้ถูก 5 ข้อ', target:5, type:'correct_physics', reward:{coin:50, exp:30}, done:false, claimed:false},
+    {id:'q2', title:'จับสิ่งมีชีวิตประเภท Chemistry 2 ตัว', target:2, type:'capture_chemistry', reward:{coin:60, exp:40}, done:false, claimed:false},
+    {id:'q3', title:'ชนะการต่อสู้ 3 ครั้ง', target:3, type:'wins', reward:{coin:40, exp:25}, done:false, claimed:false},
+    {id:'q4', title:'เอาชนะ Physics Boss (GRAVITON)', target:1, type:'boss_graviton', reward:{coin:100, exp:80}, done:false, claimed:false},
+    {id:'q5', title:'ตอบคำถามให้ถูกรวม 15 ข้อ', target:15, type:'correct_total', reward:{coin:80, exp:50}, done:false, claimed:false},
+    {id:'q6', title:'จับสิ่งมีชีวิตให้ครบ 5 ชนิด', target:5, type:'dex_count', reward:{coin:90, exp:60}, done:false, claimed:false},
+  ];
+}
+
+/* ---------------- SHOP ITEMS ---------------- */
+const SHOP_ITEMS = [
+  {id:'capsule', name:'Science Capsule', icon:'🔴', price:50, desc:'ใช้จับสิ่งมีชีวิต (HP ต่ำ)'},
+  {id:'energyPack', name:'Energy Pack', icon:'🔋', price:40, desc:'ฟื้นฟู Energy +30'},
+  {id:'hpPotion', name:'HP Restore', icon:'💊', price:40, desc:'ฟื้นฟู HP +50'},
+  {id:'expBooster', name:'EXP Booster', icon:'📈', price:80, desc:'EXP ที่ได้รับ x1.5 ในศึกถัดไป'},
+  {id:'scanner', name:'Scanner', icon:'📡', price:60, desc:'เผยจุดอ่อน-แข็งของศัตรูระหว่างต่อสู้'},
+];
+
+/* ---------------- STATE ---------------- */
+let state = null;
+function defaultState(){
+  return {
+    started:false,
+    player:{
+      name:'นักวิทยาศาสตร์ฝึกหัด', starterId:null, level:1, exp:0, expToNext:50,
+      maxHp:40, hp:40, maxEnergy:30, energy:30, atk:10, def:6, coins:100,
+    },
+    captured:{}, // id -> {level}
+    inventory:{capsule:3, energyPack:2, hpPotion:2, expBooster:1, scanner:1},
+    quests:freshQuests(),
+    bossesDefeated:[],
+    zonesCleared:[],
+    stats:{correctByCat:{physics:0,chemistry:0,biology:0,space:0}, correctTotal:0, wins:0, captures:0},
+    settings:{sound:true},
+    freePlay:false,
+    lastRecentQ:[],
+  };
+}
+function saveGame(){
+  try{ localStorage.setItem('scienceAdventureSave', JSON.stringify(state)); }catch(e){}
+}
+function loadGame(){
+  try{
+    const raw = localStorage.getItem('scienceAdventureSave');
+    if(raw){ const loaded = JSON.parse(raw); return Object.assign(defaultState(), loaded); }
+  }catch(e){}
+  return null;
+}
+function hasSave(){ return !!localStorage.getItem('scienceAdventureSave'); }
+
+/* ---------------- UTIL ---------------- */
+function $(id){ return document.getElementById(id); }
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+}
+function flashWhite(){ const f=$('flashOverlay'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
+function screenShake(el){ el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+function rnd(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+function typeColor(t){ return TYPES[t] ? TYPES[t].color : '#888'; }
+function creatureIconEl(cid, size){
+  const c = CREATURES[cid];
+  const cls = size ? ('creature-icon '+size) : 'creature-icon';
+  return `<div class="${cls}" style="background:radial-gradient(circle at 35% 30%, ${typeColor(c.type)}cc, ${typeColor(c.type)}55 70%); border:2px solid ${typeColor(c.type)};">${c.icon}</div>`;
+}
+
+/* ---------------- SCALED CREATURE INSTANCE ---------------- */
+function makeInstance(cid, level){
+  const base = CREATURES[cid];
+  const lv = level||1;
+  const scale = 1 + (lv-1)*0.12;
+  return {
+    cid, name:base.name, type:base.type, icon:base.icon, ability:base.ability, sci:base.sci, boss:!!base.boss, finalBoss:!!base.finalBoss,
+    level:lv,
+    maxHp: Math.round(base.baseHp*scale), hp: Math.round(base.baseHp*scale),
+    atk: Math.round(base.baseAtk*scale), def: Math.round(base.baseDef*scale),
+  };
+}
+
+/* ============================================================
+   TITLE / MENUS
+   ============================================================ */
+window.addEventListener('DOMContentLoaded', ()=>{
+  state = defaultState();
+  if(hasSave()){ $('btnContinue').disabled = false; } else { $('btnContinue').disabled = true; $('btnContinue').style.opacity=.4; }
+  $('soundToggle').textContent = state.settings.sound ? '🔊':'🔇';
+  document.body.addEventListener('click', (e)=>{ if(e.target.closest('button')) SFX.click(); }, true);
+});
+
+function goTitle(){
+  showScreen('screen-title');
+  if(hasSave()){ $('btnContinue').disabled=false; $('btnContinue').style.opacity=1; }
+}
+
+function showHowTo(){
+  $('modalBox').innerHTML = `
+    <h2 style="color:var(--cyan); margin-top:0;">📖 วิธีเล่น</h2>
+    <div style="text-align:left; font-size:14px; line-height:1.7; max-height:60vh; overflow-y:auto;">
+      <p>🗺️ เดินทางไปยังเขตวิทยาศาสตร์ต่างๆ บนแผนที่โลก เพื่อตามหาสิ่งมีชีวิตพลังงานวิทยาศาสตร์ที่หลุดออกจากห้องทดลอง</p>
+      <p>⚔️ เมื่อพบศัตรู ให้เลือก <b>SCIENCE ATTACK</b> เพื่อตอบคำถามวิทยาศาสตร์ ตอบถูก = โจมตีสำเร็จ ตอบผิด = พลาดและเสีย HP/Energy เล็กน้อย</p>
+      <p>✨ <b>SKILL</b> ใช้พลัง Energy เพื่อโจมตีพิเศษ 🎒 <b>ITEM</b> ใช้ไอเทมช่วยเหลือ</p>
+      <p>🔴 <b>CAPTURE</b> ใช้ Science Capsule จับสิ่งมีชีวิตเมื่อ HP ของมันต่ำ 🏃 <b>RUN</b> หนีจากการต่อสู้ (ยกเว้นบอส)</p>
+      <p>🌀 แต่ละประเภทพลังงานมีจุดแข็ง-จุดอ่อนต่อกันเป็นวงจร ใช้ให้เป็นประโยชน์!</p>
+      <p>📈 ชนะศึกเพื่อรับ EXP, Level, Science Coin และปลดล็อกภารกิจใหม่ๆ</p>
+    </div>
+    <button class="btn gold" style="margin-top:14px;" onclick="closeModal()">เข้าใจแล้ว</button>
+  `;
+  $('modalBg').classList.add('active');
+}
+function showCredits(){
+  $('modalBox').innerHTML = `
+    <h2 style="color:var(--purple); margin-top:0;">✦ CREDITS</h2>
+    <p style="font-size:14px; line-height:1.8;">SCIENCE ADVENTURE: THE ELEMENTAL QUEST<br>
+    โลก ตัวละคร และเนื้อเรื่องทั้งหมดถูกสร้างขึ้นใหม่ทั้งหมด<br>
+    ออกแบบมาเพื่อการเรียนรู้วิทยาศาสตร์ผ่านการเล่นเกม<br><br>
+    ขอบคุณที่ร่วมผจญภัย นักวิทยาศาสตร์รุ่นใหม่! 🔬</p>
+    <button class="btn gold" style="margin-top:10px;" onclick="closeModal()">ปิด</button>
+  `;
+  $('modalBg').classList.add('active');
+}
+function closeModal(){ $('modalBg').classList.remove('active'); }
+
+function openDatabase(fromTitle){
+  renderDexGrid('menuContent');
+  if(fromTitle!==false){
+    showScreen('screen-menu');
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    $('menuContent').dataset.only = '1';
+  }
+}
+
+/* ============================================================
+   NEW GAME FLOW
+   ============================================================ */
+function startNewGame(){
+  state = defaultState();
+  state.started = true;
+  runOpeningCutscene();
+}
+
+function continueGame(){
+  const loaded = loadGame();
+  if(!loaded){ toast('ไม่พบข้อมูลบันทึก'); return; }
+  state = loaded;
+  if(!state.settings) state.settings = {sound:true};
+  $('soundToggle').textContent = state.settings.sound ? '🔊':'🔇';
+  if(!state.player.starterId){ runOpeningCutscene(); return; }
+  goMap();
+}
+
+/* ---- Dialogue engine ---- */
+let dlgQueue = [];
+let dlgIndex = 0;
+let dlgOnDone = null;
+function runDialogue(lines, onDone){
+  dlgQueue = lines; dlgIndex = 0; dlgOnDone = onDone;
+  showScreen('screen-cutscene');
+  showDlgLine();
+}
+function showDlgLine(){
+  const line = dlgQueue[dlgIndex];
+  $('dlgName').textContent = line.name;
+  $('dlgText').textContent = '';
+  $('cutChar').textContent = line.char || '🧑‍🔬';
+  typeText(line.text);
+}
+let typeTimer = null;
+function typeText(text){
+  clearInterval(typeTimer);
+  let i = 0;
+  const el = $('dlgText');
+  el.dataset.full = text;
+  typeTimer = setInterval(()=>{
+    el.textContent = text.slice(0,i);
+    i++;
+    if(i>text.length){ clearInterval(typeTimer); }
+  }, 16);
+}
+function advanceDialogue(){
+  const el = $('dlgText');
+  if(el.textContent !== el.dataset.full){ clearInterval(typeTimer); el.textContent = el.dataset.full; return; }
+  dlgIndex++;
+  if(dlgIndex >= dlgQueue.length){
+    if(dlgOnDone) dlgOnDone();
+  } else {
+    showDlgLine();
+  }
+}
+function runOpeningCutscene(){
+  runDialogue([
+    {name:'ระบบห้องทดลอง', char:'🚨', text:'คำเตือน: ห้องทดลองกลางเกิดเหตุขัดข้องขั้นวิกฤต!'},
+    {name:'ศาสตราจารย์ ลูมิ', char:'🧑‍🔬', text:'ห้องทดลองเกิดเหตุขัดข้อง! พลังงานวิทยาศาสตร์จำนวนมากหลุดออกไปทั่วโลก...'},
+    {name:'ศาสตราจารย์ ลูมิ', char:'🧑‍🔬', text:'เราต้องการนักวิทยาศาสตร์รุ่นใหม่เพื่อช่วยนำพวกมันกลับมาอย่างปลอดภัย'},
+    {name:'ศาสตราจารย์ ลูมิ', char:'🧑‍🔬', text:'เธอคือความหวังของเรา... เลือกสิ่งมีชีวิตพลังงานที่จะร่วมเดินทางไปกับเธอ'},
+  ], ()=>{ renderCharSelect(); showScreen('screen-charselect'); });
+}
+
+/* ---- Character Select ---- */
+let selectedStarter = null;
+function renderCharSelect(){
+  selectedStarter = null;
+  $('btnConfirmChar').disabled = true;
+  const grid = $('charGrid');
+  grid.innerHTML = STARTERS.map(cid=>{
+    const c = CREATURES[cid];
+    return `<div class="char-card" id="cc-${cid}" onclick="selectStarter('${cid}')">
+      ${creatureIconEl(cid,'lg')}
+      <h3 style="margin:6px 0 2px;">${c.name}</h3>
+      <span class="type-badge" style="background:${typeColor(c.type)}33; color:${typeColor(c.type)}; border:1px solid ${typeColor(c.type)};">${TYPES[c.type].label}</span>
+      <p style="font-size:12px; opacity:.75; margin-top:8px;">${c.ability}</p>
+      <div style="font-size:11px; opacity:.6; margin-top:6px;">HP ${c.baseHp} · ATK ${c.baseAtk} · DEF ${c.baseDef}</div>
+    </div>`;
+  }).join('');
+}
+function selectStarter(cid){
+  selectedStarter = cid;
+  document.querySelectorAll('.char-card').forEach(c=>c.classList.remove('selected'));
+  $('cc-'+cid).classList.add('selected');
+  $('btnConfirmChar').disabled = false;
+}
+function confirmCharacter(){
+  if(!selectedStarter) return;
+  state.player.starterId = selectedStarter;
+  state.captured[selectedStarter] = {level:5};
+  const c = CREATURES[selectedStarter];
+  state.player.maxHp = 40 + c.baseHp; state.player.hp = state.player.maxHp;
+  state.player.maxEnergy = 30; state.player.energy = 30;
+  state.player.atk = 10 + c.baseAtk; state.player.def = 6 + c.baseDef;
+  saveGame();
+  runDialogue([
+    {name:'ศาสตราจารย์ ลูมิ', char:'🧑‍🔬', text:`ยอดเยี่ยม! ${c.name} จะร่วมเดินทางไปกับเธอ`},
+    {name:c.name, char:c.icon, text:'พร้อมออกเดินทางแล้ว!'},
+    {name:'ศาสตราจารย์ ลูมิ', char:'🧑‍🔬', text:'เริ่มจาก Physics Valley เขตแรกที่ตรวจพบพลังงานรั่วไหล ขอให้โชคดี นักวิทยาศาสตร์!'},
+  ], ()=>{ goMap(); });
+}
+/* ============================================================
+   WORLD MAP
+   ============================================================ */
+function isZoneUnlocked(zone){
+  return state.player.level >= zone.reqLevel || state.freePlay;
+}
+function goMap(){
+  showScreen('screen-map');
+  renderMapHud();
+  renderZoneList();
+  saveGame();
+}
+function renderMapHud(){
+  const p = state.player;
+  $('mapHud').innerHTML = `
+    <div class="hud-chip">⭐ Lv.${p.level}</div>
+    <div class="hud-chip">${creatureIconEl(p.starterId).replace('creature-icon','creature-icon').replace(/width:84px;height:84px;/,'')}</div>
+    <div class="hud-chip">💰 ${p.coins} Coins</div>
+    <div class="hud-chip">❤️ ${p.hp}/${p.maxHp}</div>
+    <div class="hud-chip">🔷 ${p.energy}/${p.maxEnergy}</div>
+    <div class="hud-chip">🧬 ${Object.keys(state.captured).length}/${Object.keys(CREATURES).filter(k=>!CREATURES[k].boss).length}</div>
+  `;
+}
+function renderZoneList(){
+  const list = $('zoneList');
+  list.innerHTML = ZONES.map(z=>{
+    const unlocked = isZoneUnlocked(z);
+    const cleared = state.bossesDefeated.includes(z.boss);
+    return `<div class="zone-card ${unlocked?'':'locked'}" onclick="${unlocked? `enterZone('${z.id}')`:`toast('ต้องถึงเลเวล ${z.reqLevel} ก่อนถึงจะเข้าได้')`}">
+      <div class="zone-icon" style="background:${z.color}33; border:1px solid ${z.color};">${z.icon}</div>
+      <div class="zone-info">
+        <h3>${z.name} ${cleared?'<span class=\"zone-badge done\">CLEARED</span>':(unlocked?'':'<span class=\"zone-badge\">LOCK</span>')}</h3>
+        <p>${z.desc} · บอส: ${z.bossName}</p>
+      </div>
+      <div style="font-size:20px; opacity:.5;">›</div>
+    </div>`;
+  }).join('');
+}
+
+let currentZone = null;
+function enterZone(zid){
+  currentZone = ZONES.find(z=>z.id===zid);
+  if(currentZone.isFinal && !allMainBossesDefeated()){
+    toast('ต้องปราบบอสในเขตอื่นให้ครบก่อนถึงจะเข้า Final Science Lab ได้');
+    return;
+  }
+  startWildEncounter();
+}
+function allMainBossesDefeated(){
+  const mainBosses = ZONES.filter(z=>!z.isFinal).map(z=>z.boss);
+  return mainBosses.every(b=>state.bossesDefeated.includes(b));
+}
+
+/* ============================================================
+   BATTLE SYSTEM
+   ============================================================ */
+let battle = null; // {enemy, playerLv, isBoss, phase, recentQIdx, awaitingChoice, itemMode}
+function startWildEncounter(){
+  const cid = pick(currentZone.wild);
+  const lvl = clamp(state.player.level + rnd(-1,1), 1, 20);
+  const enemy = makeInstance(cid, lvl);
+  beginBattle(enemy, false);
+}
+function startBossEncounter(zone){
+  const enemy = makeInstance(zone.boss, Math.max(zone.reqLevel+2, state.player.level+1));
+  enemy.phase = 1;
+  beginBattle(enemy, true);
+}
+function beginBattle(enemy, isBoss){
+  battle = {
+    enemy, isBoss, phase:1, turnBusy:false,
+  };
+  $('battleTitle').textContent = isBoss ? '👑 BOSS BATTLE' : '⚔️ BATTLE';
+  $('battleZoneTag').textContent = currentZone ? currentZone.name : '';
+  syncBattleUI(true);
+  showScreen('screen-battle');
+  logBattle(isBoss ? `${enemy.name} ปรากฏตัว! ระวังให้ดี!` : `${enemy.name} ป่า ปรากฏตัว!`);
+  $('qbox').style.display = 'none';
+  $('actionBar').style.display = 'grid';
+  if(isBoss){
+    SFX.boss();
+    showBossEntrance(enemy.name);
+  }
+  updateCaptureBtn();
+}
+function showBossEntrance(name){
+  $('bossEntranceName').textContent = name;
+  const el = $('bossEntrance');
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 1600);
+}
+function activeStarter(){ return state.player.starterId; }
+function syncBattleUI(full){
+  const p = state.player; const e = battle.enemy;
+  const starter = CREATURES[activeStarter()];
+  $('playerName').textContent = starter.name;
+  $('playerLv').textContent = 'Lv.'+p.level;
+  $('enemyName').textContent = e.name;
+  $('enemyLv').textContent = 'Lv.'+e.level;
+  $('playerSprite').textContent = starter.icon;
+  $('playerSprite').style.background = `radial-gradient(circle at 35% 30%, ${typeColor(starter.type)}cc, ${typeColor(starter.type)}55 70%)`;
+  $('playerSprite').style.border = `3px solid ${typeColor(starter.type)}`;
+  $('enemySprite').textContent = e.icon;
+  $('enemySprite').style.background = `radial-gradient(circle at 35% 30%, ${typeColor(e.type)}cc, ${typeColor(e.type)}55 70%)`;
+  $('enemySprite').style.border = `3px solid ${typeColor(e.type)}`;
+  updateBars();
+}
+function updateBars(){
+  const p = state.player; const e = battle.enemy;
+  const phb = clamp(p.hp/p.maxHp*100,0,100);
+  const ehb = clamp(e.hp/e.maxHp*100,0,100);
+  $('playerHpBar').style.width = phb+'%';
+  $('playerHpBar').classList.toggle('low', phb<30);
+  $('enemyHpBar').style.width = ehb+'%';
+  $('enemyHpBar').classList.toggle('low', ehb<30);
+  $('playerEnBar').style.width = clamp(p.energy/p.maxEnergy*100,0,100)+'%';
+}
+function logBattle(msg){ $('battleLog').textContent = msg; }
+function updateCaptureBtn(){
+  const e = battle.enemy;
+  const canCapture = !battle.isBoss && (e.hp/e.maxHp) <= 0.4;
+  $('captureBtn').disabled = !canCapture;
+}
+function spawnDamageNumber(target, val, opts){
+  opts = opts||{};
+  const box = target==='enemy' ? $('enemyBox') : $('playerBox');
+  const num = document.createElement('div');
+  num.className = 'dmg-num'+(opts.heal?' heal':'')+(opts.crit?' crit':'');
+  num.textContent = (opts.heal?'+':'-')+Math.abs(val)+(opts.crit?' CRIT!':'');
+  num.style.left = '50%';
+  box.appendChild(num);
+  setTimeout(()=>num.remove(), 1000);
+}
+function spriteHit(target){
+  const sp = target==='enemy' ? $('enemySprite') : $('playerSprite');
+  sp.classList.remove('hit'); void sp.offsetWidth; sp.classList.add('hit');
+  screenShake($('arena'));
+}
+function spriteAttack(target){
+  const sp = target==='player' ? $('playerSprite') : $('enemySprite');
+  sp.classList.remove('attack-lunge'); void sp.offsetWidth; sp.classList.add('attack-lunge');
+}
+function spawnParticles(target, color){
+  const box = target==='enemy' ? $('enemyBox') : $('playerBox');
+  for(let i=0;i<8;i++){
+    const p = document.createElement('div');
+    p.className='particle';
+    const size = rnd(4,9);
+    p.style.width=size+'px'; p.style.height=size+'px';
+    p.style.background=color;
+    p.style.left = (40+rnd(-20,20))+'px';
+    p.style.top = (40+rnd(-10,10))+'px';
+    p.style.boxShadow = `0 0 8px ${color}`;
+    box.appendChild(p);
+    const dx = rnd(-40,40), dy = rnd(-50,-10);
+    p.animate([{transform:'translate(0,0)', opacity:1},{transform:`translate(${dx}px,${dy}px)`, opacity:0}],{duration:600, easing:'ease-out'});
+    setTimeout(()=>p.remove(), 620);
+  }
+}
+
+/* ---- Action handling ---- */
+function battleAction(type){
+  if(!battle || battle.turnBusy) return;
+  if(type==='attack'){ openQuestion('attack'); }
+  else if(type==='skill'){
+    if(state.player.energy < 10){ toast('Energy ไม่พอสำหรับ SKILL!'); return; }
+    openQuestion('skill');
+  }
+  else if(type==='item'){ openItemMenu(); }
+  else if(type==='capture'){ doCapture(); }
+  else if(type==='run'){ doRun(); }
+}
+
+function pickQuestion(){
+  const diffPool = battle.isBoss ? ['hard','boss'] : (state.player.level<=6? ['easy','normal'] : ['normal','hard']);
+  let cat = currentZone && currentZone.cat!=='all' ? currentZone.cat : pick(['physics','chemistry','biology','space']);
+  let candidates = QUESTIONS.filter(q=> q.cat===cat && diffPool.includes(q.diff));
+  if(candidates.length===0) candidates = QUESTIONS.filter(q=>diffPool.includes(q.diff));
+  // avoid immediate repeats
+  let pool = candidates.filter(q => !state.lastRecentQ.includes(q.q));
+  if(pool.length===0) pool = candidates;
+  const chosen = pick(pool);
+  state.lastRecentQ.push(chosen.q);
+  if(state.lastRecentQ.length>4) state.lastRecentQ.shift();
+  return chosen;
+}
+
+let pendingAction = null;
+function openQuestion(actionType){
+  pendingAction = actionType;
+  const q = pickQuestion();
+  battle.currentQ = q;
+  $('qTag').textContent = q.cat.toUpperCase()+' · '+q.diff.toUpperCase();
+  $('qText').textContent = q.q;
+  $('qExplain').style.display='none';
+  // shuffle choices
+  const idxArr = q.choices.map((c,i)=>i);
+  for(let i=idxArr.length-1;i>0;i--){ const j=rnd(0,i); [idxArr[i],idxArr[j]]=[idxArr[j],idxArr[i]]; }
+  const ansBox = $('qAnswers');
+  ansBox.innerHTML='';
+  idxArr.forEach(origIdx=>{
+    const btn = document.createElement('button');
+    btn.className='ans-btn';
+    btn.textContent = q.choices[origIdx];
+    btn.onclick = ()=>answerQuestion(origIdx===q.a, btn, q);
+    ansBox.appendChild(btn);
+  });
+  $('qbox').style.display='block';
+  $('actionBar').style.display='none';
+}function answerQuestion(correct, btnEl, q){
+  battle.turnBusy = true;
+  document.querySelectorAll('.ans-btn').forEach(b=>{
+    b.onclick=null;
+    if(b===btnEl) b.classList.add(correct?'correct':'wrong');
+    if(!correct && b.textContent===q.choices[q.a]) b.classList.add('correct');
+  });
+  if(correct){ SFX.correct(); recordCorrect(q.cat); }
+  else { SFX.wrong(); }
+  setTimeout(()=>{
+    if(!correct){
+      $('qExplain').style.display='block';
+      $('qExplain').textContent = '💡 เฉลย: '+q.choices[q.a]+' — '+q.exp;
+    }
+    setTimeout(()=>{
+      resolveAction(correct);
+    }, correct ? 350 : 1600);
+  }, 500);
+}
+
+function recordCorrect(cat){
+  state.stats.correctByCat[cat] = (state.stats.correctByCat[cat]||0)+1;
+  state.stats.correctTotal++;
+  updateQuestProgress();
+}
+
+function resolveAction(correct){
+  const p = state.player; const e = battle.enemy;
+  if(pendingAction==='attack'){
+    if(correct){
+      const mult = typeMultiplier(CREATURES[activeStarter()].type, e.type);
+      const crit = Math.random()<0.15;
+      let dmg = Math.round((p.atk*1.6 - e.def*0.5) * mult * (crit?1.6:1));
+      dmg = Math.max(4, dmg + rnd(-2,3));
+      e.hp = clamp(e.hp-dmg,0,e.maxHp);
+      spriteAttack('player'); SFX.attack();
+      setTimeout(()=>{ spriteHit('enemy'); spawnDamageNumber('enemy', dmg, {crit}); flashWhite(); },180);
+      spawnParticles('enemy', typeColor(CREATURES[activeStarter()].type));
+      logBattle(`ตอบถูก! SCIENCE POWER +20 — โจมตี ${e.name} ได้ ${dmg} ดาเมจ${mult>1?' (ได้เปรียบธาตุ!)':mult<1?' (เสียเปรียบธาตุ)':''}${crit?' CRITICAL HIT!':''}`);
+      state.player.energy = clamp(state.player.energy+4,0,p.maxEnergy);
+    } else {
+      const selfDmg = rnd(2,6);
+      p.hp = clamp(p.hp-selfDmg,0,p.maxHp);
+      p.energy = clamp(p.energy-5,0,p.maxEnergy);
+      spriteHit('player'); screenShake(document.body);
+      logBattle(`ตอบผิด! การโจมตีพลาดเป้า และเสีย HP ${selfDmg}`);
+    }
+  } else if(pendingAction==='skill'){
+    p.energy = clamp(p.energy-10,0,p.maxEnergy);
+    if(correct){
+      const mult = typeMultiplier(CREATURES[activeStarter()].type, e.type);
+      let dmg = Math.round((p.atk*2.2 - e.def*0.4) * mult);
+      dmg = Math.max(6, dmg+rnd(-1,4));
+      e.hp = clamp(e.hp-dmg,0,e.maxHp);
+      spriteAttack('player'); SFX.attack();
+      setTimeout(()=>{ spriteHit('enemy'); spawnDamageNumber('enemy', dmg, {crit:true}); flashWhite(); screenShake($('arena')); },180);
+      spawnParticles('enemy', typeColor(CREATURES[activeStarter()].type));
+      logBattle(`${CREATURES[activeStarter()].ability.split(' — ')[0]} สำเร็จ! โจมตีพิเศษ ${dmg} ดาเมจ!`);
+    } else {
+      const selfDmg = rnd(4,8);
+      p.hp = clamp(p.hp-selfDmg,0,p.maxHp);
+      spriteHit('player');
+      logBattle(`สกิลล้มเหลว! เสีย HP ${selfDmg} และสูญเสีย Energy`);
+    }
+  }
+  updateBars();
+  $('qbox').style.display='none';
+  checkBattleState(true);
+}
+
+/* ---- Item menu ---- */
+function openItemMenu(){
+  const inv = state.inventory;
+  $('modalBox').innerHTML = `
+    <h2 style="color:var(--cyan); margin-top:0;">🎒 ไอเทม</h2>
+    <div style="display:flex; flex-direction:column; gap:8px; text-align:left;">
+      <button class="btn ghost" onclick="useItem('hpPotion')" ${inv.hpPotion<=0?'disabled':''}>💊 HP Restore (+50 HP) — มี ${inv.hpPotion}</button>
+      <button class="btn ghost" onclick="useItem('energyPack')" ${inv.energyPack<=0?'disabled':''}>🔋 Energy Pack (+30 EN) — มี ${inv.energyPack}</button>
+      <button class="btn ghost" onclick="useItem('scanner')" ${inv.scanner<=0?'disabled':''}>📡 Scanner (เผยจุดอ่อน) — มี ${inv.scanner}</button>
+    </div>
+    <button class="btn danger" style="margin-top:14px;" onclick="closeModal()">ยกเลิก</button>
+  `;
+  $('modalBg').classList.add('active');
+}
+function useItem(id){
+  const inv = state.inventory; const p = state.player; const e = battle.enemy;
+  if(inv[id]<=0) return;
+  inv[id]--;
+  closeModal();
+  if(id==='hpPotion'){ p.hp = clamp(p.hp+50,0,p.maxHp); toast('ฟื้นฟู HP +50'); logBattle('ใช้ HP Restore ฟื้นฟูพลังชีวิต +50'); }
+  if(id==='energyPack'){ p.energy = clamp(p.energy+30,0,p.maxEnergy); toast('ฟื้นฟู Energy +30'); logBattle('ใช้ Energy Pack ฟื้นฟูพลังงาน +30'); }
+  if(id==='scanner'){
+    const mult = typeMultiplier(CREATURES[activeStarter()].type, e.type);
+    const hint = mult>1 ? 'คุณได้เปรียบธาตุ! โจมตีจะแรงขึ้น' : (mult<1 ? 'คุณเสียเปรียบธาตุ ระวังดาเมจลด' : 'ธาตุไม่มีผลได้เปรียบ-เสียเปรียบ');
+    toast('Scanner: '+hint); logBattle('Scanner วิเคราะห์: '+hint);
+  }
+  updateBars();
+  saveGame();
+  if(id!=='scanner') endEnemyTurnIfNeeded();
+}
+
+/* ---- Capture ---- */
+function doCapture(){
+  const inv = state.inventory; const e = battle.enemy;
+  if(battle.isBoss){ toast('ไม่สามารถจับบอสได้!'); return; }
+  if(inv.capsule<=0){ toast('ไม่มี Science Capsule! ไปซื้อที่ร้านค้า'); return; }
+  if((e.hp/e.maxHp)>0.4){ toast('HP ของศัตรูยังสูงเกินไป ลดก่อนแล้วค่อยจับ!'); return; }
+  inv.capsule--;
+  battle.turnBusy = true;
+  const chance = 0.5 + (1-(e.hp/e.maxHp))*0.4;
+  const success = Math.random()<chance;
+  spawnParticles('enemy', '#fbbf24');
+  setTimeout(()=>{
+    if(success){
+      SFX.capture();
+      logBattle(`🔴 NEW SPECIMEN CAPTURED! ${e.name} เข้าร่วมฐานข้อมูลแล้ว!`);
+      if(!state.captured[e.cid]) state.stats.captures++;
+      state.captured[e.cid] = {level:e.level};
+      updateQuestProgress();
+      saveGame();
+      setTimeout(()=>endBattle(true), 1200);
+    } else {
+      logBattle(`Capsule จับพลาด! ${e.name} หลุดออกมา และโกรธจัด!`);
+      setTimeout(()=>enemyTurn(), 900);
+    }
+  }, 500);
+}/* ---- Run ---- */
+function doRun(){
+  if(battle.isBoss){ toast('หนีจากบอสไม่ได้!'); return; }
+  battle.turnBusy = true;
+  const success = Math.random()<0.8;
+  if(success){
+    logBattle('หลบหนีสำเร็จ!');
+    setTimeout(()=>{ goMap(); }, 700);
+  } else {
+    logBattle('หนีไม่สำเร็จ!');
+    setTimeout(()=>enemyTurn(), 700);
+  }
+}
+
+/* ---- Enemy turn & battle state checks ---- */
+function checkBattleState(fromPlayerAction){
+  const p = state.player; const e = battle.enemy;
+  updateCaptureBtn();
+  if(e.hp<=0){
+    handleEnemyDefeated();
+    return;
+  }
+  if(p.hp<=0){
+    battle.turnBusy = false;
+    setTimeout(()=>gameOver(), 500);
+    return;
+  }
+  if(fromPlayerAction && (pendingAction==='attack'||pendingAction==='skill')){
+    setTimeout(()=>enemyTurn(), 700);
+  } else {
+    battle.turnBusy = false;
+    $('actionBar').style.display='grid';
+  }
+}
+function endEnemyTurnIfNeeded(){
+  battle.turnBusy = false;
+  $('actionBar').style.display='grid';
+}
+
+function enemyTurn(){
+  const p = state.player; const e = battle.enemy;
+  if(e.hp<=0 || p.hp<=0){ battle.turnBusy=false; return; }
+  const mult = typeMultiplier(e.type, CREATURES[activeStarter()].type);
+  let dmg = Math.round((e.atk*1.3 - p.def*0.5) * mult);
+  dmg = Math.max(3, dmg+rnd(-2,3));
+  if(battle.isBoss){
+    const hpPct = e.hp/e.maxHp;
+    if(hpPct<0.66 && battle.phase===1){ battle.phase=2; logBattle(`${e.name} เข้าสู่ Phase 2! พลังเพิ่มขึ้น!`); dmg = Math.round(dmg*1.2); screenShake($('arena')); }
+    else if(hpPct<0.33 && battle.phase===2){ battle.phase=3; logBattle(`${e.name} เข้าสู่ Phase สุดท้าย! ใช้ ${CREATURES[e.cid].ability}!`); dmg = Math.round(dmg*1.4); screenShake($('arena')); flashWhite(); }
+  }
+  spriteAttack('enemy'); SFX.attack();
+  setTimeout(()=>{
+    p.hp = clamp(p.hp-dmg,0,p.maxHp);
+    spriteHit('player'); spawnDamageNumber('player', dmg);
+    updateBars();
+    if(!battle.isBoss || (battle.phase!==2 && battle.phase!==3)) logBattle(`${e.name} โจมตีกลับ! คุณเสีย HP ${dmg}`);
+    if(p.hp<=0){ setTimeout(()=>gameOver(), 500); }
+    else { battle.turnBusy=false; $('actionBar').style.display='grid'; }
+  }, 250);
+}
+
+/* ---- Defeat / rewards ---- */
+function handleEnemyDefeated(){
+  const e = battle.enemy;
+  battle.turnBusy = true;
+  $('actionBar').style.display='none';
+  spawnParticles('enemy', '#fde047');
+  const isBoss = battle.isBoss;
+  setTimeout(()=>{
+    if(isBoss){
+      SFX.victory();
+      if(!state.bossesDefeated.includes(e.cid)) state.bossesDefeated.push(e.cid);
+      if(!state.zonesCleared.includes(currentZone.id)) state.zonesCleared.push(currentZone.id);
+      logBattle(`🏆 ${e.name} ถูกปราบแล้ว! ${currentZone.name} ปลอดภัยแล้ว!`);
+      grantRewards(60+e.level*6, 40+e.level*3);
+      state.stats.wins++;
+      updateQuestProgress();
+      saveGame();
+      if(currentZone.isFinal){
+        setTimeout(()=>showEnding(), 1300);
+      } else {
+        setTimeout(()=>{
+          runDialogue([
+            {name:CREATURES[activeStarter()].name, char:CREATURES[activeStarter()].icon, text:`เราชนะแล้ว! ${e.name} สงบลง และพลังงานถูกเก็บกลับคืนสู่ห้องทดลอง`},
+            {name:'ศาสตราจารย์ ลูมิ', char:'🧑‍🔬', text:'ทำได้ดีมาก! ยังมีอีกหลายเขตที่รอเธออยู่ เดินทางต่อไปเถอะ'},
+          ], ()=>{ goMap(); });
+        }, 800);
+      }
+    } else {
+      logBattle(`ชนะการต่อสู้! ได้รับ EXP และ Science Coin`);
+      grantRewards(20+e.level*3, 15+e.level*2);
+      state.stats.wins++;
+      updateQuestProgress();
+      saveGame();
+      setTimeout(()=>{ goMap(); }, 1300);
+    }
+  }, 500);
+}
+function grantRewards(exp, coin){
+  const booster = state.inventory.expBooster>0 && state._boosterActive;
+  if(state._boosterActive){ exp = Math.round(exp*1.5); state._boosterActive=false; }
+  state.player.coins += coin;
+  gainExp(exp);
+  toast(`+${exp} EXP · +${coin} Coins`);
+}
+function gainExp(amount){
+  const p = state.player;
+  p.exp += amount;
+  while(p.exp >= p.expToNext && p.level < 20){
+    p.exp -= p.expToNext;
+    p.level++;
+    p.expToNext = Math.round(50 * Math.pow(1.18, p.level-1));
+    p.maxHp += 6; p.hp = p.maxHp;
+    p.maxEnergy += 3; p.energy = p.maxEnergy;
+    p.atk += 2; p.def += 1;
+    SFX.levelup();
+    showLevelUpBanner(p.level);
+  }
+  if(p.level>=20){ p.exp = 0; }
+}
+function showLevelUpBanner(lv){
+  const b = $('levelupBanner');
+  b.textContent = `⭐ LEVEL UP! Lv.${lv} ⭐`;
+  b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+}
+function backToMapFromGameOver(){
+  state.player.hp = Math.max(1, Math.round(state.player.maxHp*0.4));
+  state.player.energy = state.player.maxEnergy;
+  goMap();
+}
+function gameOver(){
+  logBattle('HP หมด...');
+  showScreen('screen-gameover');
+  saveGame();
+}
+function endBattle(won){
+  saveGame();
+  goMap();
+}
+
+/* ============================================================
+   QUESTS
+   ============================================================ */
+function updateQuestProgress(){
+  const s = state.stats;
+  state.quests.forEach(q=>{
+    if(q.done) return;
+    let val = 0;
+    if(q.type==='correct_physics') val = s.correctByCat.physics||0;
+    else if(q.type==='capture_chemistry') val = Object.keys(state.captured).filter(c=>CREATURES[c].type==='Chemistry').length;
+    else if(q.type==='wins') val = s.wins;
+    else if(q.type==='boss_graviton') val = state.bossesDefeated.includes('graviton') ? 1:0;
+    else if(q.type==='correct_total') val = s.correctTotal;
+    else if(q.type==='dex_count') val = Object.keys(state.captured).length;
+    if(val>=q.target){ q.done = true; }
+  });
+}
+function claimQuest(qid){
+  const q = state.quests.find(x=>x.id===qid);
+  if(!q || !q.done || q.claimed) return;
+  q.claimed = true;
+  state.player.coins += q.reward.coin;
+  gainExp(q.reward.exp);
+  toast(`เควสสำเร็จ! +${q.reward.coin} Coins +${q.reward.exp} EXP`);
+  saveGame();
+  renderMenuTab('quest');
+}
+
+/* ============================================================
+   MENU (pause) - team / quest / shop / dex / options
+   ============================================================ */
+function openMenu(){ showScreen('screen-menu'); switchMenuTab('team'); }
+function closeMenu(){ goMap(); }
+function switchMenuTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  renderMenuTab(tab);
+}
+function renderMenuTab(tab){
+  const c = $('menuContent');
+  if(tab==='team'){
+    const p = state.player;
+    c.innerHTML = `
+      <div class="list-card">
+        <div class="icon-box">${CREATURES[p.starterId].icon}</div>
+        <div class="info">
+          <h4>${CREATURES[p.starterId].name} (คู่หูหลัก) — Lv.${p.level}</h4>
+          <p>HP ${p.hp}/${p.maxHp} · ATK ${p.atk} · DEF ${p.def}</p>
+          <div class="progress-mini"><div class="fill" style="width:${clamp(p.exp/p.expToNext*100,0,100)}%"></div></div>
+          <p style="margin-top:4px;">EXP ${p.exp}/${p.expToNext}</p>
+        </div>
+      </div>
+      <h3 style="margin:16px 0 6px; font-size:15px; color:var(--cyan);">🧬 สิ่งมีชีวิตที่จับได้ (${Object.keys(state.captured).length})</h3>
+      ${Object.keys(state.captured).map(cid=>{
+        const cc = CREATURES[cid];
+        return `<div class="list-card">
+          <div class="icon-box" style="background:${typeColor(cc.type)}33;">${cc.icon}</div>
+          <div class="info"><h4>${cc.name}</h4><p>${TYPES[cc.type].label} · Lv.${state.captured[cid].level}</p></div>
+        </div>`;
+      }).join('') || '<p class="center-msg">ยังไม่มีสิ่งมีชีวิตที่จับได้</p>'}
+    `;
+  } else if(tab==='quest'){
+    c.innerHTML = state.quests.map(q=>{
+      let val=0; const s=state.stats;
+      if(q.type==='correct_physics') val=s.correctByCat.physics||0;
+      else if(q.type==='capture_chemistry') val=Object.keys(state.captured).filter(cc=>CREATURES[cc].type==='Chemistry').length;
+      else if(q.type==='wins') val=s.wins;
+      else if(q.type==='boss_graviton') val=state.bossesDefeated.includes('graviton')?1:0;
+      else if(q.type==='correct_total') val=s.correctTotal;
+      else if(q.type==='dex_count') val=Object.keys(state.captured).length;
+      val = Math.min(val,q.target);
+      return `<div class="list-card">
+        <div class="icon-box">${q.claimed?'✅':q.done?'🎁':'📋'}</div>
+        <div class="info">
+          <h4>${q.title}</h4>
+          <div class="progress-mini"><div class="fill" style="width:${val/q.target*100}%"></div></div>
+          <p>${val}/${q.target} · รางวัล: +${q.reward.coin} Coins +${q.reward.exp} EXP</p>
+          ${q.done && !q.claimed ? `<button class="btn gold" style="margin-top:8px; padding:8px 14px; font-size:12px;" onclick="claimQuest('${q.id}')">รับรางวัล</button>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } else if(tab==='shop'){
+    c.innerHTML = `<div class="hud-chip" style="margin-bottom:10px; display:inline-flex;">💰 ${state.player.coins} Science Coin</div>` +
+      SHOP_ITEMS.map(it=>`
+        <div class="list-card">
+          <div class="icon-box">${it.icon}</div>
+          <div class="info"><h4>${it.name}</h4><p>${it.desc}</p></div>
+          <button class="btn gold" style="padding:8px 12px; font-size:12px;" onclick="buyItem('${it.id}', ${it.price})">${it.price} 💰</button>
+        </div>
+      `).join('');
+  } else if(tab==='dex'){
+    renderDexGrid('menuContent');
+  } else if(tab==='opt'){
+    c.innerHTML = `
+      <div class="list-card"><div class="icon-box">🔊</div><div class="info"><h4>เสียง</h4><p>เปิด/ปิดเอฟเฟกต์เสียงในเกม</p></div>
+        <button class="btn ghost" onclick="toggleSound(); renderMenuTab('opt')">${state.settings.sound?'เปิดอยู่':'ปิดอยู่'}</button></div>
+      <div class="list-card"><div class="icon-box">💾</div><div class="info"><h4>บันทึกเกม</h4><p>บันทึกความคืบหน้าปัจจุบัน</p></div>
+        <button class="btn gold" onclick="saveGame(); toast('บันทึกเรียบร้อย!')">SAVE</button></div>
+      <div class="list-card"><div class="icon-box">🗑️</div><div class="info"><h4>รีเซ็ตข้อมูล</h4><p>ลบข้อมูลบันทึกทั้งหมดและเริ่มใหม่</p></div>
+        <button class="btn danger" onclick="confirmReset()">RESET</button></div>
+    `;
+  }
+}function buyItem(id, price){
+  if(state.player.coins<price){ toast('Science Coin ไม่พอ!'); return; }
+  state.player.coins -= price;
+  state.inventory[id] = (state.inventory[id]||0)+1;
+  toast(`ซื้อ ${id} สำเร็จ!`);
+  saveGame();
+  renderMenuTab('shop');
+}
+function confirmReset(){
+  $('modalBox').innerHTML = `
+    <h2 style="color:var(--danger); margin-top:0;">⚠️ ยืนยันการรีเซ็ต</h2>
+    <p style="font-size:14px;">การกระทำนี้จะลบข้อมูลบันทึกทั้งหมดอย่างถาวร ยืนยันหรือไม่?</p>
+    <div style="display:flex; gap:10px; margin-top:14px;">
+      <button class="btn ghost" style="flex:1;" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn danger" style="flex:1;" onclick="doReset()">ลบข้อมูล</button>
+    </div>`;
+  $('modalBg').classList.add('active');
+}
+function doReset(){
+  localStorage.removeItem('scienceAdventureSave');
+  closeModal();
+  state = defaultState();
+  goTitle();
+  toast('รีเซ็ตข้อมูลเรียบร้อย');
+}
+
+/* ============================================================
+   SCIENCE DATABASE
+   ============================================================ */
+function renderDexGrid(containerId){
+  const c = $(containerId);
+  const allIds = Object.keys(CREATURES).filter(k=>!CREATURES[k].boss);
+  c.innerHTML = `<h2 style="color:var(--cyan); margin-top:0;">🧬 SCIENCE DATABASE</h2>
+  <div class="dex-grid">
+    ${allIds.map(cid=>{
+      const known = !!state.captured[cid];
+      const c2 = CREATURES[cid];
+      if(!known){
+        return `<div class="dex-card unknown"><div class="creature-icon" style="background:#1c2350; border:2px dashed #3a4270;">❔</div><h4>???</h4><p>ยังไม่พบ</p></div>`;
+      }
+      return `<div class="dex-card" onclick="openDexDetail('${cid}')" style="cursor:pointer;">
+        <div class="creature-icon" style="background:radial-gradient(circle at 35% 30%, ${typeColor(c2.type)}cc, ${typeColor(c2.type)}55 70%); border:2px solid ${typeColor(c2.type)};">${c2.icon}</div>
+        <h4>${c2.name}</h4><p>${TYPES[c2.type].label}</p>
+      </div>`;
+    }).join('')}
+  </div>
+  ${containerId==='menuContent' ? '' : '<div style="text-align:center; margin-top:20px;"><button class="btn ghost" onclick="goTitle()">← กลับ</button></div>'}
+  `;
+  if(containerId!=='menuContent'){ showScreen('screen-map'); document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); 
+    // create a temp overlay approach: reuse menu screen styling minimal — simplest: show in modal-like full screen using screen-menu container without tabs
+  }
+}
+function openDatabaseStandalone(){}
+function openDexDetail(cid){
+  const c = CREATURES[cid];
+  const lv = state.captured[cid] ? state.captured[cid].level : c.baseHp;
+  $('dexDetailCard').innerHTML = `
+    <div class="creature-icon xl" style="margin:0 auto; background:radial-gradient(circle at 35% 30%, ${typeColor(c.type)}cc, ${typeColor(c.type)}55 70%); border:3px solid ${typeColor(c.type)};">${c.icon}</div>
+    <h2 style="margin:12px 0 2px;">${c.name}</h2>
+    <span class="type-badge" style="background:${typeColor(c.type)}33; color:${typeColor(c.type)}; border:1px solid ${typeColor(c.type)};">${TYPES[c.type].label}</span>
+    <p style="font-size:13px; opacity:.8; margin-top:10px;">Level: ${lv}</p>
+    <p style="font-size:13px; opacity:.8;">HP ${c.baseHp} · ATK ${c.baseAtk} · DEF ${c.baseDef}</p>
+    <p style="font-size:13px; margin-top:8px;"><b>ความสามารถ:</b> ${c.ability}</p>
+    <div class="explain" style="margin-top:12px; text-align:left;">📚 ${c.sci}</div>
+    <button class="btn gold" style="margin-top:16px;" onclick="closeDexDetail()">ปิด</button>
+  `;
+  $('dexDetail').classList.add('active');
+}
+function closeDexDetail(){ $('dexDetail').classList.remove('active'); }
+
+/* fix openDatabase from title to render inline full-screen using menu screen without tabs bar look */
+function openDatabase(fromTitle){
+  showScreen('screen-menu');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  renderDexGrid('menuContent');
+  const backBtn = document.createElement('div');
+}
+
+/* ============================================================
+   ENDING
+   ============================================================ */
+function showEnding(){
+  const s = state.stats;
+  const capturedCount = Object.keys(state.captured).length;
+  const totalDex = Object.keys(CREATURES).filter(k=>!CREATURES[k].boss).length;
+  const bossCount = state.bossesDefeated.length;
+  let score = s.correctTotal*10 + capturedCount*20 + bossCount*50 + state.player.level*15;
+  let rank = 'C';
+  if(score>=900) rank='S'; else if(score>=650) rank='A'; else if(score>=400) rank='B';
+  $('endingStats').innerHTML = `
+    คะแนนรวม: <b>${score}</b><br>
+    ตอบคำถามถูก: <b>${s.correctTotal}</b> ข้อ<br>
+    สิ่งมีชีวิตที่จับได้: <b>${capturedCount}/${totalDex}</b><br>
+    บอสที่ปราบ: <b>${bossCount}/${ZONES.length}</b>
+  `;
+  $('endingRank').textContent = 'RANK '+rank;
+  showScreen('screen-ending');
+  SFX.victory();
+  saveGame();
+}
+function enterFreePlay(){
+  state.freePlay = true;
+  saveGame();
+  goMap();
+  toast('ปลดล็อก FREE PLAY MODE! สำรวจได้ทุกเขต');
+}
+</script>
+</body>
+</html>
