@@ -1561,5 +1561,11 @@ function enterFreePlay(){
   toast('ปลดล็อก FREE PLAY MODE! สำรวจได้ทุกเขต');
 }
 </script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('Service Worker Registered'));
+  }
+  </script>
+  
 </body>
 </html>
